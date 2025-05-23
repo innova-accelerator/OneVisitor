@@ -60,6 +60,15 @@ export const DashboardNavbar = () => {
                   Visitors
                 </Button>
               </Link>
+              <Link to="/dashboard/users">
+                <Button 
+                  variant={isActive("/dashboard/users") ? "secondary" : "ghost"}
+                  className="text-primary-foreground hover:text-primary-foreground"
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Users
+                </Button>
+              </Link>
               <Link to="/dashboard/settings">
                 <Button 
                   variant={isActive("/dashboard/settings") ? "secondary" : "ghost"}
