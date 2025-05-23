@@ -3,9 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { Shield, Users, Clock, Smartphone, FileText, AlertTriangle } from "lucide-react";
+import { Shield, Users, Clock, Smartphone, FileText, AlertTriangle, Building, Palette, Globe } from "lucide-react";
+import { useContext } from "react";
+import { TenantContext } from "../App";
 
 const Index = () => {
+  const { currentTenant, tenantBranding } = useContext(TenantContext);
+
   const features = [
     {
       icon: Users,
@@ -42,6 +46,18 @@ const Index = () => {
       title: "Real-Time Analytics",
       description: "Live dashboards with visitor insights, peak hours analysis, and automated reporting.",
       color: "bg-indigo-500"
+    },
+    {
+      icon: Building,
+      title: "Multi-Tenant Architecture",
+      description: "Securely isolate data between organizations with custom branding and workflows.",
+      color: "bg-teal-500"
+    },
+    {
+      icon: Palette,
+      title: "Customizable Branding",
+      description: "White-label solutions with organization-specific colors, logos and templates.",
+      color: "bg-pink-500"
     }
   ];
 
@@ -53,7 +69,7 @@ const Index = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <Shield className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">VisitorOS</span>
+              <span className="text-xl font-bold text-gray-900">OneVisitor</span>
             </div>
             <div className="flex space-x-4">
               <Link to="/dashboard">
@@ -65,6 +81,9 @@ const Index = () => {
               <Link to="/muster">
                 <Button variant="ghost">Emergency</Button>
               </Link>
+              <Link to="/admin/tenants">
+                <Button variant="ghost">Admin</Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -75,18 +94,18 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <Badge className="mb-6 bg-blue-100 text-blue-800 border-blue-200" variant="secondary">
-              Enterprise Visitor Management
+              Multi-Tenant Visitor Management
             </Badge>
             <h1 className="text-4xl sm:text-6xl font-bold text-gray-900 mb-6">
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Secure, Scalable
+                Secure, Customizable
               </span>
               <br />
               Visitor Management
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-10">
               Cloud-native platform for managing guest arrivals, pre-registration, contactless door access, 
-              digital waivers, and emergency mustering with enterprise-grade security.
+              digital waivers, and emergency mustering with enterprise-grade security and tenant isolation.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/dashboard">
@@ -112,7 +131,7 @@ const Index = () => {
               Complete Visitor Management Suite
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Everything you need to manage visitors securely and efficiently
+              Everything you need to manage visitors securely across multiple organizations
             </p>
           </div>
           
@@ -139,7 +158,7 @@ const Index = () => {
       {/* Stats Section */}
       <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center text-white">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-8 text-center text-white">
             <div>
               <div className="text-4xl font-bold mb-2">99.9%</div>
               <div className="text-blue-100">Uptime Guaranteed</div>
@@ -147,6 +166,10 @@ const Index = () => {
             <div>
               <div className="text-4xl font-bold mb-2">10k+</div>
               <div className="text-blue-100">Visitors Processed Daily</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold mb-2">100+</div>
+              <div className="text-blue-100">Active Organizations</div>
             </div>
             <div>
               <div className="text-4xl font-bold mb-2">SOC2</div>
@@ -161,7 +184,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Shield className="h-6 w-6" />
-            <span className="text-lg font-semibold">VisitorOS</span>
+            <span className="text-lg font-semibold">OneVisitor</span>
           </div>
           <p className="text-gray-400">
             Enterprise-grade visitor management for the modern workplace

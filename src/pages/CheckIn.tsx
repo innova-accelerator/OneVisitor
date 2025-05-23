@@ -1,16 +1,50 @@
-
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
-import { Shield, Camera, QrCode, Clock, CheckCircle } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+import { Shield, Camera, QrCode, Clock, CheckCircle, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { TenantContext, TenantBranding } from "../App";
+
+// Demo tenant branding data - in a real app this would come from API
+const demoTenants: Record<string, TenantBranding> = {
+  "acme-corp": {
+    name: "Acme Corporation",
+    logo: "https://placehold.co/200x200/3498db/FFFFFF/png?text=ACME",
+    primaryColor: "#3498db",
+    secondaryColor: "#2980b9",
+    font: "Inter, sans-serif"
+  },
+  "globex": {
+    name: "Globex Industries",
+    logo: "https://placehold.co/200x200/27ae60/FFFFFF/png?text=GLOBEX",
+    primaryColor: "#27ae60",
+    secondaryColor: "#2ecc71",
+    font: "Roboto, sans-serif"
+  },
+  "wayne-ent": {
+    name: "Wayne Enterprises",
+    logo: "https://placehold.co/200x200/34495e/FFFFFF/png?text=WAYNE",
+    primaryColor: "#34495e",
+    secondaryColor: "#2c3e50",
+    font: "Montserrat, sans-serif"
+  },
+  "stark-ind": {
+    name: "Stark Industries",
+    logo: "https://placehold.co/200x200/e74c3c/FFFFFF/png?text=STARK",
+    primaryColor: "#e74c3c",
+    secondaryColor: "#c0392b",
+    font: "Poppins, sans-serif"
+  },
+};
 
 const CheckIn = () => {
+  const { tenantId } = useParams<{ tenantId: string }>();
+  const { setCurrentTenant, setTenantBranding, tenantBranding } = useContext(TenantContext);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -25,6 +59,18 @@ const CheckIn = () => {
   });
   const { toast } = useToast();
 
+  // Load tenant branding when component mounts or tenantId changes
+  useEffect(() => {
+    if (tenantId && demoTenants[tenantId]) {
+      setCurrentTenant(tenantId);
+      setTenantBranding(demoTenants[tenantId]);
+    } else {
+      // Default branding
+      setCurrentTenant(null);
+      setTenantBranding(null);
+    }
+  }, [tenantId, setCurrentTenant, setTenantBranding]);
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -35,12 +81,51 @@ const CheckIn = () => {
     }
   };
 
+  const handleUnlock = () => {
+    toast({
+      title: "Door Unlocked",
+      description: "Access granted. Door will remain unlocked for 30 seconds.",
+    });
+  };
+
   const handleSubmit = () => {
     toast({
       title: "Check-in Complete!",
       description: "Welcome badge has been printed. Please wait for host notification.",
     });
     setStep(5);
+  };
+
+  // Get styling based on tenant branding
+  const getBrandStyles = () => {
+    if (!tenantBranding) {
+      return {
+        primaryBg: "from-blue-600 to-purple-600",
+        primaryButton: "bg-blue-600 hover:bg-blue-700",
+        logo: <Shield className="h-8 w-8 text-blue-600" />,
+        organizationName: "OneVisitor"
+      };
+    }
+
+    return {
+      primaryBg: "",
+      primaryButton: "",
+      logo: tenantBranding.logo ? 
+        <img src={tenantBranding.logo} alt="Logo" className="h-8 w-8" /> : 
+        <Shield className="h-8 w-8" style={{ color: tenantBranding.primaryColor }} />,
+      organizationName: tenantBranding.name
+    };
+  };
+
+  const brandStyles = getBrandStyles();
+
+  // Helper to apply tenant's primary color to buttons
+  const getButtonStyle = () => {
+    if (!tenantBranding) {
+      return "bg-blue-600 hover:bg-blue-700";
+    }
+    
+    return "";
   };
 
   const renderStep = () => {
@@ -159,7 +244,11 @@ const CheckIn = () => {
                   <p className="text-gray-600 mb-4">Position yourself in the frame and smile!</p>
                   <Button 
                     onClick={() => setFormData(prev => ({ ...prev, photo: true }))}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className={getButtonStyle()}
+                    style={{ 
+                      backgroundColor: tenantBranding?.primaryColor,
+                      color: "#ffffff"
+                    }}
                   >
                     <Camera className="h-4 w-4 mr-2" />
                     Capture Photo
@@ -216,7 +305,7 @@ const CheckIn = () => {
         return (
           <div className="text-center space-y-6">
             <CheckCircle className="h-20 w-20 text-green-600 mx-auto" />
-            <h2 className="text-3xl font-bold text-gray-900">Welcome to the Building!</h2>
+            <h2 className="text-3xl font-bold text-gray-900">Welcome!</h2>
             <p className="text-xl text-gray-600">Your badge is being printed</p>
             
             <Card className="bg-green-50 border-green-200">
@@ -231,9 +320,22 @@ const CheckIn = () => {
               </CardContent>
             </Card>
             
-            <p className="text-gray-600">
+            <p className="text-gray-600 mb-6">
               Your host has been notified. Please wait in the reception area.
             </p>
+            
+            <Button 
+              onClick={handleUnlock}
+              className={getButtonStyle()}
+              style={{ 
+                backgroundColor: tenantBranding?.primaryColor,
+                color: "#ffffff"
+              }}
+              size="lg"
+            >
+              <Shield className="h-5 w-5 mr-2" />
+              Unlock Door
+            </Button>
           </div>
         );
         
@@ -243,14 +345,24 @@ const CheckIn = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
+      style={tenantBranding ? {
+        background: `linear-gradient(to bottom right, ${tenantBranding.primaryColor}10, ${tenantBranding.secondaryColor}10)`,
+        fontFamily: tenantBranding.font || 'inherit'
+      } : {}}
+    >
       {/* Navigation */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center space-x-2">
-              <Shield className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">VisitorOS</span>
+              {brandStyles.logo}
+              <span 
+                className="text-xl font-bold text-gray-900"
+                style={tenantBranding ? { color: tenantBranding.primaryColor } : {}}
+              >
+                {brandStyles.organizationName}
+              </span>
             </Link>
             <div className="flex items-center space-x-2">
               <QrCode className="h-5 w-5 text-gray-600" />
@@ -270,9 +382,12 @@ const CheckIn = () => {
                   key={stepNumber}
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                     stepNumber <= step
-                      ? 'bg-blue-600 text-white'
+                      ? 'text-white'
                       : 'bg-gray-200 text-gray-600'
                   }`}
+                  style={stepNumber <= step ? { 
+                    backgroundColor: tenantBranding?.primaryColor || '#3B82F6'
+                  } : {}}
                 >
                   {stepNumber}
                 </div>
@@ -309,7 +424,11 @@ const CheckIn = () => {
                       (step === 3 && !formData.photo) ||
                       (step === 4 && !formData.signature)
                     }
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className={getButtonStyle()}
+                    style={{ 
+                      backgroundColor: tenantBranding?.primaryColor || undefined,
+                      color: "#ffffff"
+                    }}
                   >
                     Next
                   </Button>
@@ -329,6 +448,7 @@ const CheckIn = () => {
               <div className="mt-8 text-center">
                 <Link to="/dashboard">
                   <Button variant="outline">
+                    <LogOut className="h-4 w-4 mr-2" />
                     Return to Dashboard
                   </Button>
                 </Link>
