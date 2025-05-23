@@ -1,12 +1,173 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
+import { Shield, Users, Clock, Smartphone, FileText, AlertTriangle } from "lucide-react";
 
 const Index = () => {
+  const features = [
+    {
+      icon: Users,
+      title: "Visitor Pre-Registration",
+      description: "Bulk CSV uploads, custom invite forms, and automated QR code generation for seamless guest management.",
+      color: "bg-blue-500"
+    },
+    {
+      icon: Smartphone,
+      title: "Self-Service Kiosks",
+      description: "Touch-enabled tablet interface with photo capture, digital forms, and contactless check-in.",
+      color: "bg-purple-500"
+    },
+    {
+      icon: Shield,
+      title: "Contactless Door Unlock",
+      description: "Secure, time-limited credentials with one-time use tokens for enhanced security.",
+      color: "bg-green-500"
+    },
+    {
+      icon: FileText,
+      title: "Digital Waivers",
+      description: "Capture signatures, NDAs, and compliance documents with full audit trails.",
+      color: "bg-orange-500"
+    },
+    {
+      icon: AlertTriangle,
+      title: "Emergency Mustering",
+      description: "Real-time visitor tracking with instant evacuation alerts and muster list generation.",
+      color: "bg-red-500"
+    },
+    {
+      icon: Clock,
+      title: "Real-Time Analytics",
+      description: "Live dashboards with visitor insights, peak hours analysis, and automated reporting.",
+      color: "bg-indigo-500"
+    }
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Navigation */}
+      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-2">
+              <Shield className="h-8 w-8 text-blue-600" />
+              <span className="text-xl font-bold text-gray-900">VisitorOS</span>
+            </div>
+            <div className="flex space-x-4">
+              <Link to="/dashboard">
+                <Button variant="ghost">Dashboard</Button>
+              </Link>
+              <Link to="/checkin">
+                <Button variant="ghost">Check In</Button>
+              </Link>
+              <Link to="/muster">
+                <Button variant="ghost">Emergency</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="relative overflow-hidden py-20 sm:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <Badge className="mb-6 bg-blue-100 text-blue-800 border-blue-200" variant="secondary">
+              Enterprise Visitor Management
+            </Badge>
+            <h1 className="text-4xl sm:text-6xl font-bold text-gray-900 mb-6">
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Secure, Scalable
+              </span>
+              <br />
+              Visitor Management
+            </h1>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-10">
+              Cloud-native platform for managing guest arrivals, pre-registration, contactless door access, 
+              digital waivers, and emergency mustering with enterprise-grade security.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/dashboard">
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                  Admin Dashboard
+                </Button>
+              </Link>
+              <Link to="/checkin">
+                <Button size="lg" variant="outline">
+                  Visitor Check-In
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section className="py-20 bg-white/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Complete Visitor Management Suite
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Everything you need to manage visitors securely and efficiently
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <Card key={index} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 bg-white/80 backdrop-blur-sm">
+                <CardHeader>
+                  <div className={`w-12 h-12 rounded-lg ${feature.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                    <feature.icon className="h-6 w-6 text-white" />
+                  </div>
+                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-gray-600">
+                    {feature.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center text-white">
+            <div>
+              <div className="text-4xl font-bold mb-2">99.9%</div>
+              <div className="text-blue-100">Uptime Guaranteed</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold mb-2">10k+</div>
+              <div className="text-blue-100">Visitors Processed Daily</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold mb-2">SOC2</div>
+              <div className="text-blue-100">Security Compliant</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <Shield className="h-6 w-6" />
+            <span className="text-lg font-semibold">VisitorOS</span>
+          </div>
+          <p className="text-gray-400">
+            Enterprise-grade visitor management for the modern workplace
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
