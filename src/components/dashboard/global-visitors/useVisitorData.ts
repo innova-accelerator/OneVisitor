@@ -1,60 +1,19 @@
 
-import { useState } from "react";
-import { KioskSite, SiteVisitor } from "@/models/kiosk";
+import { useContext, useCallback, useMemo } from 'react';
+import { SiteVisitor } from '@/models/kiosk';
+import { TenantContext } from '@/App';
 
-export const useVisitorData = () => {
+export function useVisitorData(siteId?: string) {
+  const { tenantId } = useContext(TenantContext);
+  
   // Mock data - in a real app, this would come from an API
-  const sites: KioskSite[] = [
-    {
-      id: "main-office",
-      tenantId: "tenant1",
-      name: "Main Office",
-      url: "main-office",
-      urlType: "path",
-      published: true,
-      branding: {
-        logo: "https://placehold.co/200x100?text=MainOffice",
-        primaryColor: "#2563eb",
-        secondaryColor: "#1e40af",
-        favicon: "https://placehold.co/32x32?text=MO"
-      },
-      welcomeMessage: "Welcome to our main office! Please check in.",
-      language: "en",
-      lastPublished: "2023-04-15T10:30:00Z",
-      visitorTypes: [
-        { id: "visitor", name: "Visitor" },
-        { id: "contractor", name: "Contractor" },
-        { id: "interview", name: "Interview" }
-      ],
-      formFields: [],
-      visitorCount: 12
-    },
-    {
-      id: "warehouse",
-      tenantId: "tenant1",
-      name: "Warehouse",
-      url: "warehouse",
-      urlType: "path",
-      published: true,
-      branding: {
-        logo: "https://placehold.co/200x100?text=Warehouse",
-        primaryColor: "#10b981",
-        secondaryColor: "#059669",
-        favicon: "https://placehold.co/32x32?text=WH"
-      },
-      welcomeMessage: "Welcome to our warehouse facility.",
-      language: "en",
-      lastPublished: "2023-04-15T10:30:00Z",
-      visitorTypes: [
-        { id: "delivery", name: "Delivery" },
-        { id: "visitor", name: "Visitor" }
-      ],
-      formFields: [],
-      visitorCount: 8
-    }
-  ];
-
-  const visitors: SiteVisitor[] = [
+  const sites = useMemo(() => [
+    { id: "main-office", name: "Main Office" },
+    { id: "warehouse", name: "Warehouse" },
+    { id: "branch-ny", name: "New York Branch" }
+  ], []);
+  
+  const allVisitors: SiteVisitor[] = useMemo(() => [
     {
       id: "v1",
       siteId: "main-office",
@@ -90,66 +49,40 @@ export const useVisitorData = () => {
     },
     {
       id: "v4",
-      siteId: "warehouse",
-      name: "Sarah Wilson",
-      host: "David Taylor",
+      siteId: "branch-ny",
+      name: "Emily Wilson",
+      host: "David Miller",
       visitorType: "visitor",
-      company: "123 Consulting",
-      checkInTime: "08:15 AM",
-      checkOutTime: "11:30 AM",
+      company: "Global Enterprises",
+      checkInTime: "14:20 PM",
       formResponses: {},
       status: "checked-out"
-    },
-    {
-      id: "v5",
-      siteId: "main-office",
-      name: "Robert Garcia",
-      host: "Emma Lee",
-      visitorType: "interview",
-      checkInTime: "13:45 PM",
-      formResponses: {},
-      status: "active"
     }
-  ];
+  ], []);
+
+  // Filter visitors by siteId if provided
+  const visitors = useMemo(() => {
+    return siteId ? allVisitors.filter(v => v.siteId === siteId) : allVisitors;
+  }, [allVisitors, siteId]);
   
-  // Get visitor types across all sites
-  const allVisitorTypes = Array.from(
-    new Set(sites.flatMap(site => site.visitorTypes.map(type => type.id)))
-  );
+  const allVisitorTypes = useMemo(() => ["visitor", "contractor", "delivery", "interview"], []);
   
-  // Get site name for a given siteId
-  const getSiteName = (siteId: string): string => {
+  const getSiteName = useCallback((siteId: string) => {
     const site = sites.find(site => site.id === siteId);
     return site ? site.name : siteId;
-  };
-
-  // Handle export function with filtered data
-  const handleExport = (filteredVisitors: SiteVisitor[]) => {
-    console.log("Exporting filtered visitors", filteredVisitors);
-    // In a real app, this would generate a CSV/PDF
-    
-    // Example CSV export
-    const headers = ["Site", "Name", "Company", "Type", "Host", "Check-in Time", "Status"];
-    const csvData = filteredVisitors.map(visitor => [
-      getSiteName(visitor.siteId),
-      visitor.name,
-      visitor.company || "",
-      visitor.visitorType,
-      visitor.host,
-      visitor.checkInTime,
-      visitor.status === "active" ? "Checked In" : "Checked Out"
-    ]);
-    
-    // For demo purposes just log the data
-    console.log("CSV Headers:", headers);
-    console.log("CSV Data:", csvData);
-  };
-
+  }, [sites]);
+  
+  const handleExport = useCallback((data: SiteVisitor[]) => {
+    console.log("Exporting data:", data);
+    // In a real app, this would generate and download a CSV/Excel file
+    alert(`Exported ${data.length} visitor records for ${siteId ? getSiteName(siteId) : 'all sites'}`);
+  }, [getSiteName, siteId]);
+  
   return {
-    sites,
+    sites: siteId ? sites.filter(s => s.id === siteId) : sites,
     visitors,
     allVisitorTypes,
     getSiteName,
     handleExport
   };
-};
+}

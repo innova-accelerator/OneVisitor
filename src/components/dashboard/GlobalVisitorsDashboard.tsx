@@ -4,11 +4,16 @@ import { DashboardMetricsCards } from "./global-visitors/DashboardMetricsCards";
 import { VisitorFilters } from "./global-visitors/VisitorFilters";
 import { GlobalVisitorsTable } from "./global-visitors/GlobalVisitorsTable";
 import { useVisitorData } from "./global-visitors/useVisitorData";
+import { StatsCards } from "./StatsCards";
 
-export const GlobalVisitorsDashboard = () => {
-  const { sites, visitors, allVisitorTypes, getSiteName, handleExport } = useVisitorData();
+interface GlobalVisitorsDashboardProps {
+  siteId?: string;
+}
+
+export const GlobalVisitorsDashboard = ({ siteId }: GlobalVisitorsDashboardProps) => {
+  const { sites, visitors, allVisitorTypes, getSiteName, handleExport } = useVisitorData(siteId);
   
-  const [selectedSites, setSelectedSites] = useState<string[]>([]);
+  const [selectedSites, setSelectedSites] = useState<string[]>(siteId ? [siteId] : []);
   const [searchQuery, setSearchQuery] = useState("");
   const [visitorType, setVisitorType] = useState("");
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -22,7 +27,9 @@ export const GlobalVisitorsDashboard = () => {
       visitor.host.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (visitor.company && visitor.company.toLowerCase().includes(searchQuery.toLowerCase()));
     
-    const matchesSites = selectedSites.length === 0 || selectedSites.includes(visitor.siteId);
+    const matchesSites = siteId 
+      ? visitor.siteId === siteId 
+      : (selectedSites.length === 0 || selectedSites.includes(visitor.siteId));
     
     const matchesType = visitorType === "" || visitor.visitorType === visitorType;
     
@@ -36,6 +43,8 @@ export const GlobalVisitorsDashboard = () => {
 
   return (
     <div>
+      {siteId && <StatsCards siteId={siteId} />}
+      
       <DashboardMetricsCards 
         visitors={visitors} 
         sites={sites} 
@@ -55,6 +64,7 @@ export const GlobalVisitorsDashboard = () => {
         handleExport={exportVisitorsData}
         sites={sites}
         allVisitorTypes={allVisitorTypes}
+        siteId={siteId}
       />
 
       <GlobalVisitorsTable 

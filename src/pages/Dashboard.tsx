@@ -1,27 +1,34 @@
-import { DashboardNavbar } from "@/components/dashboard/DashboardNavbar";
+
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatsCards } from "@/components/dashboard/StatsCards";
-import { TenantSelector } from "@/components/dashboard/TenantSelector";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import KioskCustomization from "./KioskCustomization";
 import { SettingsTabs } from "@/components/dashboard/SettingsTabs";
+import { GlobalVisitorsDashboard } from "@/components/dashboard/GlobalVisitorsDashboard";
 import { useContext } from "react";
 import { TenantContext } from "@/App";
 
 const Dashboard = () => {
   const { currentTenant } = useContext(TenantContext);
+  const location = useLocation();
+  const path = location.pathname;
+  
+  // Determine if we should show stats cards based on the current path
+  const showStatsCards = path === "/dashboard" || 
+    path === "/dashboard/" || 
+    path.includes("/dashboard/visitors");
   
   return (
-    <div>
-      <DashboardNavbar />
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <TenantSelector />
-        <StatsCards />
-        <Routes>
-          <Route path="/kiosks" element={<KioskCustomization />} />
-          <Route path="/settings" element={<SettingsTabs />} />
-        </Routes>
-      </div>
-    </div>
+    <DashboardLayout>
+      {showStatsCards && <StatsCards />}
+      
+      <Routes>
+        <Route path="/" element={<GlobalVisitorsDashboard />} />
+        <Route path="/visitors" element={<GlobalVisitorsDashboard />} />
+        <Route path="/kiosks" element={<KioskCustomization />} />
+        <Route path="/settings" element={<SettingsTabs />} />
+      </Routes>
+    </DashboardLayout>
   );
 };
 

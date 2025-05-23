@@ -1,20 +1,33 @@
-
 import { useContext } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserCheck, Clock, CalendarClock, AlertTriangle } from "lucide-react";
 import { TenantContext } from "@/App";
 
-export const StatsCards = () => {
+interface StatsCardsProps {
+  siteId?: string;
+}
+
+export const StatsCards = ({ siteId }: StatsCardsProps = {}) => {
   const { tenantBranding } = useContext(TenantContext);
   const primaryColor = tenantBranding?.primaryColor || "#3B82F6";
 
   // Mock data - in a real app, this would come from an API
-  const stats = {
-    activeVisitors: 14,
-    avgDuration: "32m",
-    scheduledToday: 26,
-    emergencies: 0
-  };
+  // If siteId is provided, we would filter data for that specific site
+  const stats = siteId ? 
+    {
+      // Site-specific mock data
+      activeVisitors: 5, // Fewer active visitors for a specific site
+      avgDuration: "28m", // Different average for the specific site
+      scheduledToday: 8, // Fewer scheduled visits for a specific site
+      emergencies: 0
+    } : 
+    {
+      // Global mock data (all sites)
+      activeVisitors: 14,
+      avgDuration: "32m",
+      scheduledToday: 26,
+      emergencies: 0
+    };
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
@@ -29,7 +42,7 @@ export const StatsCards = () => {
           <div className="text-3xl font-bold" style={{ color: primaryColor }}>
             {stats.activeVisitors}
           </div>
-          <p className="text-xs text-gray-500">On-site right now</p>
+          <p className="text-xs text-gray-500">{siteId ? "On-site now" : "On-site right now"}</p>
         </CardContent>
       </Card>
       
