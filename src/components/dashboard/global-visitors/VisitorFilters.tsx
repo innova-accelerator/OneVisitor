@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -18,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuCheckboxItem
 } from "@/components/ui/dropdown-menu";
-import { FilterIcon, DownloadIcon, RefreshIcon } from "lucide-react";
+import { FilterIcon, DownloadIcon, RefreshCwIcon as RefreshIcon } from "lucide-react";
 
 interface VisitorFiltersProps {
   searchQuery: string;
