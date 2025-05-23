@@ -12,6 +12,7 @@ export interface VisitorType {
   id: string;
   name: string;
   icon?: string;
+  requiredFields?: string[];
 }
 
 // Form field interface
@@ -35,11 +36,29 @@ export interface Host {
   email: string;
   phone?: string;
   department?: string;
+  active?: boolean;
 }
 
-// Kiosk site interface
+// Site visitor interface (for check-ins/outs)
+export interface SiteVisitor {
+  id: string;
+  siteId: string;
+  visitorType: string;
+  name: string;
+  company?: string;
+  host: string;
+  checkInTime: string;
+  checkOutTime?: string;
+  formResponses: Record<string, any>;
+  signatureUrl?: string;
+  photoUrl?: string;
+  status: 'active' | 'checked-out';
+}
+
+// Site interface
 export interface KioskSite {
   id: string;
+  tenantId: string;
   name: string;
   url: string; 
   urlType: "subdomain" | "path";
@@ -51,4 +70,5 @@ export interface KioskSite {
   visitorTypes: VisitorType[];
   formFields: FormField[];
   hosts?: Host[];
+  visitorCount?: number;
 }

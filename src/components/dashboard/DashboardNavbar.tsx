@@ -42,7 +42,7 @@ export const DashboardNavbar = () => {
                   variant={isActive("/dashboard/kiosks") ? "default" : "ghost"}
                 >
                   <MonitorSmartphone className="h-4 w-4 mr-2" />
-                  Kiosks
+                  Sites
                 </Button>
               </Link>
               <Link to="/dashboard/settings">

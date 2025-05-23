@@ -9,33 +9,59 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { User, Clock, DoorOpen } from "lucide-react";
+import { User, Clock } from "lucide-react";
+import { useState } from "react";
+import { SiteVisitor } from "@/models/kiosk";
 
-export const VisitorTable = () => {
+interface VisitorTableProps {
+  siteId?: string;
+  visitors?: SiteVisitor[];
+}
+
+export const VisitorTable = ({ siteId, visitors: propVisitors }: VisitorTableProps) => {
   // Mock data - in a real app, this would come from an API
-  const visitors = [
+  const defaultVisitors: SiteVisitor[] = [
     {
       id: "v1",
+      siteId: "main-office",
       name: "John Doe",
       host: "Alice Smith",
+      visitorType: "visitor",
+      company: "ABC Corp",
       checkInTime: "09:30 AM",
+      formResponses: {},
       status: "active"
     },
     {
       id: "v2",
+      siteId: "main-office",
       name: "Jane Smith",
       host: "Bob Johnson",
+      visitorType: "contractor",
+      company: "XYZ Contractors",
       checkInTime: "10:15 AM",
+      formResponses: {},
       status: "active"
     },
     {
       id: "v3",
+      siteId: "warehouse",
       name: "Michael Brown",
       host: "Carol Williams",
+      visitorType: "delivery",
+      company: "FastShip Logistics",
       checkInTime: "11:45 AM",
+      formResponses: {},
       status: "active"
     }
   ];
+
+  const [visitors] = useState<SiteVisitor[]>(propVisitors || defaultVisitors);
+  
+  // Filter visitors by site if siteId is provided
+  const filteredVisitors = siteId 
+    ? visitors.filter(visitor => visitor.siteId === siteId)
+    : visitors;
 
   return (
     <div className="bg-white rounded-md shadow-sm">
@@ -50,7 +76,7 @@ export const VisitorTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {visitors.map(visitor => (
+          {filteredVisitors.map(visitor => (
             <TableRow key={visitor.id}>
               <TableCell className="font-medium">
                 <div className="flex items-center">
@@ -58,6 +84,11 @@ export const VisitorTable = () => {
                     <User className="h-4 w-4 text-gray-500" />
                   </div>
                   {visitor.name}
+                  {visitor.company && (
+                    <span className="ml-2 text-sm text-gray-500">
+                      ({visitor.company})
+                    </span>
+                  )}
                 </div>
               </TableCell>
               <TableCell>{visitor.host}</TableCell>
@@ -77,14 +108,17 @@ export const VisitorTable = () => {
                   <Button size="sm" variant="outline" className="h-8">
                     Check-Out
                   </Button>
-                  <Button size="sm" variant="outline" className="h-8">
-                    <DoorOpen className="h-4 w-4" />
-                    <span className="ml-1">Unlock</span>
-                  </Button>
                 </div>
               </TableCell>
             </TableRow>
           ))}
+          {filteredVisitors.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                No visitors found.
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </div>

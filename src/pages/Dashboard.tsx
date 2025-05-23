@@ -4,10 +4,11 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { VisitorTable } from "@/components/dashboard/VisitorTable";
+import { GlobalVisitorsDashboard } from "@/components/dashboard/GlobalVisitorsDashboard";
 import { SettingsTabs } from "@/components/dashboard/SettingsTabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TenantContext } from "@/App";
 import KioskCustomization from "./KioskCustomization";
 
@@ -87,20 +88,35 @@ const DashboardVisitors = () => {
       
       <Card className="bg-white/70 backdrop-blur-sm border-0 mb-6">
         <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
-            <div className="flex space-x-2">
-              <Button variant="secondary">All Visitors</Button>
-              <Button variant="outline">Checked In</Button>
-              <Button variant="outline">Checked Out</Button>
-            </div>
-            <div className="flex space-x-2">
-              <Button>Add Visitor</Button>
-            </div>
-          </div>
+          <Tabs defaultValue="current">
+            <TabsList className="mb-4">
+              <TabsTrigger value="current">Current Visitors</TabsTrigger>
+              <TabsTrigger value="global">Global Dashboard</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="current">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
+                <div className="flex space-x-2">
+                  <Button variant="secondary">All Visitors</Button>
+                  <Button variant="outline">Checked In</Button>
+                  <Button variant="outline">Checked Out</Button>
+                </div>
+                <div className="flex space-x-2">
+                  <Button>Add Visitor</Button>
+                </div>
+              </div>
+              
+              <div className="mt-6">
+                <VisitorTable />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="global">
+              <GlobalVisitorsDashboard />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
-      
-      <VisitorTable />
     </>
   );
 };
