@@ -1,6 +1,6 @@
 
 import { useContext } from 'react';
-import { TenantContext } from "../App";
+import { LegacyTenantContext } from "../App";
 
 interface TenantBrandingProps {
   showLogo?: boolean;
@@ -12,7 +12,7 @@ interface TenantBrandingProps {
  * Can be configured to show logo, name, or both
  */
 const TenantBranding = ({ showLogo = true, showName = true }: TenantBrandingProps) => {
-  const { tenantBranding } = useContext(TenantContext);
+  const { tenantBranding } = useContext(LegacyTenantContext);
   
   if (!tenantBranding) {
     return null;

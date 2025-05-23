@@ -10,22 +10,20 @@ import Dashboard from "./pages/Dashboard";
 import CheckIn from "./pages/CheckIn";
 import NotFound from "./pages/NotFound";
 import TenantAdmin from "./pages/TenantAdmin";
-import { TenantBranding } from "./models/tenant";
-import { TenantProvider, TenantContext } from "./context/TenantContext";
+import { TenantProvider } from "./context/TenantContext"; 
+import { createContext } from "react";
+import { TenantBranding as TenantBrandingType } from "./models/tenant";
 
-// Legacy context to be migrated
-export interface TenantContextType {
+// Legacy context to be migrated - renamed to avoid conflicts
+interface LegacyTenantContextType {
   currentTenant: string | null;
   setCurrentTenant: (tenant: string | null) => void;
-  tenantBranding: TenantBranding | null;
-  setTenantBranding: (branding: TenantBranding | null) => void;
+  tenantBranding: TenantBrandingType | null;
+  setTenantBranding: (branding: TenantBrandingType | null) => void;
 }
 
-// Export TenantBranding type from models/tenant.ts directly to ensure consistency
-export type TenantBranding = TenantBranding;
-
 // Legacy context that will be replaced by the new TenantContext
-export const TenantContext = createContext<TenantContextType>({
+export const LegacyTenantContext = createContext<LegacyTenantContextType>({
   currentTenant: null,
   setCurrentTenant: () => {},
   tenantBranding: null,
@@ -36,11 +34,11 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [currentTenant, setCurrentTenant] = useState<string | null>(null);
-  const [tenantBranding, setTenantBranding] = useState<TenantBranding | null>(null);
+  const [tenantBranding, setTenantBranding] = useState<TenantBrandingType | null>(null);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TenantContext.Provider value={{ 
+      <LegacyTenantContext.Provider value={{ 
         currentTenant, 
         setCurrentTenant,
         tenantBranding,
@@ -61,7 +59,7 @@ const App = () => {
             </BrowserRouter>
           </TooltipProvider>
         </TenantProvider>
-      </TenantContext.Provider>
+      </LegacyTenantContext.Provider>
     </QueryClientProvider>
   );
 };

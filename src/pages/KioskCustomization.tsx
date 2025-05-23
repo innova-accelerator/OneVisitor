@@ -1,4 +1,3 @@
-
 import { useState, useContext } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,13 +6,13 @@ import { Plus } from "lucide-react";
 import { KioskSiteList } from "@/components/kiosk/KioskSiteList";
 import { KioskSiteModal } from "@/components/kiosk/KioskSiteModal";
 import { KioskSite } from "@/models/kiosk";
-import { TenantContext } from "@/App";
+import { LegacyTenantContext } from "@/App";
 
 const KioskCustomization = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSite, setEditingSite] = useState<KioskSite | null>(null);
   const { toast } = useToast();
-  const { currentTenant } = useContext(TenantContext);
+  const { currentTenant } = useContext(LegacyTenantContext);
 
   // Mock site data for demonstration
   const [sites, setSites] = useState<KioskSite[]>([
