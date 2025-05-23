@@ -53,7 +53,7 @@ export function useUserActions(
       roles: data.roles.filter(r => r !== 'Superadmin')
     };
     
-    const currentUser = users.find(user => user.id === filteredData.id);
+    const currentUser = users.find(user => user.id === (data as User).id);
     
     if (currentUser) {
       // Update existing user
@@ -85,10 +85,10 @@ export function useUserActions(
   const handleConfirmDeactivate = () => {
     setUsers(prevUsers => 
       prevUsers.map(user => {
-        const currentUser = prevUsers.find(u => u.id === user.id);
-        return currentUser
-          ? { ...user, isActive: false } 
-          : user;
+        if (user.id === (users.find(u => u.id === user.id)?.id)) {
+          return { ...user, isActive: false };
+        }
+        return user;
       })
     );
     
@@ -101,7 +101,7 @@ export function useUserActions(
   
   // Handle saving permissions for a user
   const handleSavePermissions = (permissions: SitePermission[]) => {
-    const permissionsUser = users.find(u => u.isActive === false);
+    const permissionsUser = users.find(u => !u.isActive);
     if (permissionsUser) {
       // Update permissions in local state
       setUserPermissions(prev => ({
