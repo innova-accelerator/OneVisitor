@@ -8,7 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Calendar as CalendarIcon, Search, Download, RefreshCw } from "lucide-react";
+import { Calendar as CalendarIcon, Search, Download, RefreshCw, User, Clock } from "lucide-react";
 import { 
   Table, 
   TableHeader, 

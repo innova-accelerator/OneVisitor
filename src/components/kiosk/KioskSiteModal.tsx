@@ -29,6 +29,7 @@ export const KioskSiteModal = ({
   // Site state
   const [siteData, setSiteData] = useState<KioskSite>({
     id: "",
+    tenantId: "tenant1", // Added tenantId with default value
     name: "",
     url: "",
     urlType: "path",
@@ -61,6 +62,7 @@ export const KioskSiteModal = ({
       // Reset form when creating a new site
       setSiteData({
         id: "",
+        tenantId: "tenant1", // Added tenantId with default value
         name: "",
         url: "",
         urlType: "path",

@@ -19,6 +19,7 @@ const KioskCustomization = () => {
   const [sites, setSites] = useState<KioskSite[]>([
     {
       id: "main-office",
+      tenantId: "tenant1", // Added tenantId
       name: "Main Office",
       url: "main-office",
       urlType: "path",
@@ -46,6 +47,7 @@ const KioskCustomization = () => {
     },
     {
       id: "warehouse",
+      tenantId: "tenant1", // Added tenantId
       name: "Warehouse",
       url: "warehouse",
       urlType: "path",
