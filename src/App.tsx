@@ -4,20 +4,66 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useState } from "react";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import CheckIn from "./pages/CheckIn";
 import NotFound from "./pages/NotFound";
 import TenantAdmin from "./pages/TenantAdmin";
-import { TenantProvider } from "./context/TenantContext";
+import { TenantBranding } from "@/models/tenant";
+
+// Define default branding
+const defaultBranding: TenantBranding = {
+  name: "OneVisitor",
+  logo: undefined,
+  primaryColor: "#3B82F6",
+  secondaryColor: "#2563EB",
+  font: "Inter, sans-serif"
+};
+
+// Create the context with proper types
+export const TenantContext = React.createContext<{
+  tenantId: string | null;
+  orgShortname: string | null;
+  currentTenant: string | null;
+  setCurrentTenant: (tenant: string | null) => void;
+  tenantBranding: TenantBranding | null;
+  setTenantBranding: (branding: TenantBranding | null) => void;
+}>({
+  tenantId: null,
+  orgShortname: null,
+  currentTenant: null,
+  setCurrentTenant: () => {},
+  tenantBranding: defaultBranding,
+  setTenantBranding: () => {}
+});
 
 // Create the query client
 const queryClient = new QueryClient();
 
 const App = () => {
+  // Tenant state management
+  const [tenantId, setTenantId] = useState<string | null>("acme-corp");
+  const [orgShortname, setOrgShortname] = useState<string | null>("acme-corp");
+  const [currentTenant, setCurrentTenant] = useState<string | null>("acme-corp");
+  const [tenantBranding, setTenantBranding] = useState<TenantBranding | null>({
+    name: "Acme Corporation",
+    logo: "https://placehold.co/100x50?text=ACME",
+    primaryColor: "#2563eb",
+    secondaryColor: "#1e40af",
+    font: "Inter, sans-serif"
+  });
+
   return (
     <QueryClientProvider client={queryClient}>
-      <TenantProvider>
+      <TenantContext.Provider value={{ 
+        tenantId,
+        orgShortname,
+        currentTenant,
+        setCurrentTenant,
+        tenantBranding,
+        setTenantBranding
+      }}>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -31,7 +77,7 @@ const App = () => {
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
-      </TenantProvider>
+      </TenantContext.Provider>
     </QueryClientProvider>
   );
 };

@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link, useParams } from "react-router-dom";
 import { Shield, Camera, QrCode, Clock, CheckCircle, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { TenantContext, TenantBranding } from "../App";
+import { TenantContext } from "@/App";
 
 // Demo tenant branding data - in a real app this would come from API
 const demoTenants: Record<string, TenantBranding> = {
@@ -43,7 +43,6 @@ const demoTenants: Record<string, TenantBranding> = {
 };
 
 const CheckIn = () => {
-  const { tenantId } = useParams<{ tenantId: string }>();
   const { setCurrentTenant, setTenantBranding, tenantBranding } = useContext(TenantContext);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({

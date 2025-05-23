@@ -1,4 +1,3 @@
-
 import { useState, useContext } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { TenantContext } from "@/App";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const SettingsTabs = () => {
   const { tenantBranding, setTenantBranding } = useContext(TenantContext);
@@ -394,6 +394,3 @@ export const SettingsTabs = () => {
     </Tabs>
   );
 };
-
-// Import missing components
-import { Checkbox } from "@/components/ui/checkbox";

@@ -1,11 +1,10 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Shield, Users, Clock, Smartphone, FileText, AlertTriangle, Building, Palette, Globe } from "lucide-react";
 import { useContext } from "react";
-import { TenantContext } from "../App";
+import { TenantContext } from "@/App";
 
 const Index = () => {
   const { currentTenant, tenantBranding } = useContext(TenantContext);
