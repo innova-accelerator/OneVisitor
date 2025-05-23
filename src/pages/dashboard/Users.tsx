@@ -4,6 +4,7 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { UsersTable } from "@/components/users/UsersTable";
 import { UserEditorModal } from "@/components/users/UserEditorModal";
 import { ConfirmDeactivateDialog } from "@/components/users/ConfirmDeactivateDialog";
+import { UserPermissionsModal, SitePermission } from "@/components/users/UserPermissionsModal";
 import { Button } from "@/components/ui/button";
 import { User, UserFormData } from "@/types/user";
 import { Input } from "@/components/ui/input";
@@ -20,12 +21,6 @@ import { v4 as uuidv4 } from 'uuid';
  * - Deactivate user confirmation dialog
  * 
  * Currently uses in-memory state with mock data.
- * 
- * TODO: When implementing API integration:
- * 1. Replace useState with React Query hooks
- * 2. Add loading states and error handling
- * 3. Implement real pagination and filtering
- * 4. Replace mock data manipulation with API calls
  */
 
 // Mock data for initial users
@@ -82,6 +77,11 @@ const Users = () => {
   const [isDeactivateDialogOpen, setIsDeactivateDialogOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | undefined>(undefined);
   
+  // State for permissions modal
+  const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
+  const [userPermissions, setUserPermissions] = useState<Record<string, SitePermission[]>>({});
+  const [permissionsUser, setPermissionsUser] = useState<User | null>(null);
+  
   // Filter users based on search query
   const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -105,6 +105,12 @@ const Users = () => {
   const handleDeactivateClick = (user: User) => {
     setCurrentUser(user);
     setIsDeactivateDialogOpen(true);
+  };
+
+  // Open permissions modal for a user
+  const handleManagePermissions = (user: User) => {
+    setPermissionsUser(user);
+    setIsPermissionsModalOpen(true);
   };
 
   // Save a new or updated user
@@ -154,6 +160,23 @@ const Users = () => {
     // TODO: In a real implementation, this would call the deactivate user API endpoint
     console.log('Deactivate user:', currentUser);
   };
+  
+  // Handle saving permissions for a user
+  const handleSavePermissions = (permissions: SitePermission[]) => {
+    if (permissionsUser) {
+      // Update permissions in local state
+      setUserPermissions(prev => ({
+        ...prev,
+        [permissionsUser.id]: permissions
+      }));
+      
+      // Close the modal after saving
+      setIsPermissionsModalOpen(false);
+      
+      // TODO: In a real implementation, this would call the update permissions API endpoint
+      console.log('Save permissions for user:', permissionsUser.id, permissions);
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -186,6 +209,7 @@ const Users = () => {
             users={filteredUsers}
             onEdit={handleEditUser}
             onDeactivate={handleDeactivateClick}
+            onManagePermissions={handleManagePermissions}
           />
           
           {/* Static Pagination - No functionality */}
@@ -224,6 +248,17 @@ const Users = () => {
         userName={currentUser?.name || ""}
         onConfirm={handleConfirmDeactivate}
         onCancel={() => setIsDeactivateDialogOpen(false)}
+      />
+      
+      <UserPermissionsModal
+        isOpen={isPermissionsModalOpen}
+        user={permissionsUser}
+        currentPermissions={permissionsUser ? userPermissions[permissionsUser.id] || [] : []}
+        onSave={handleSavePermissions}
+        onCancel={() => {
+          setIsPermissionsModalOpen(false);
+          setPermissionsUser(null);
+        }}
       />
     </DashboardLayout>
   );

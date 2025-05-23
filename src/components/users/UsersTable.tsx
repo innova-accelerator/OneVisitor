@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { User } from '@/types/user';
 import {
@@ -23,9 +24,15 @@ interface UsersTableProps {
   users: User[];
   onEdit: (user: User) => void;
   onDeactivate: (user: User) => void;
+  onManagePermissions: (user: User) => void;
 }
 
-export function UsersTable({ users, onEdit, onDeactivate }: UsersTableProps) {
+export function UsersTable({ 
+  users, 
+  onEdit, 
+  onDeactivate,
+  onManagePermissions 
+}: UsersTableProps) {
   return (
     <Table>
       <TableHeader>
@@ -33,6 +40,7 @@ export function UsersTable({ users, onEdit, onDeactivate }: UsersTableProps) {
           <TableHead>Name</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Roles</TableHead>
+          <TableHead>Site Access</TableHead>
           <TableHead>Status</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
@@ -40,7 +48,7 @@ export function UsersTable({ users, onEdit, onDeactivate }: UsersTableProps) {
       <TableBody>
         {users.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={5} className="h-24 text-center">
+            <TableCell colSpan={6} className="h-24 text-center">
               No users found
             </TableCell>
           </TableRow>
@@ -53,6 +61,15 @@ export function UsersTable({ users, onEdit, onDeactivate }: UsersTableProps) {
               <TableCell className="font-medium">{user.name}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>{user.roles.join(', ')}</TableCell>
+              <TableCell>
+                <Button 
+                  variant="link" 
+                  size="sm"
+                  onClick={() => onManagePermissions(user)}
+                >
+                  Manage...
+                </Button>
+              </TableCell>
               <TableCell>
                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                   user.isActive 
