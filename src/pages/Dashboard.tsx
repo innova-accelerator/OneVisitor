@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TenantContext } from "@/App";
+import KioskCustomization from "./KioskCustomization";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ const Dashboard = () => {
       <Routes>
         <Route path="overview" element={<DashboardOverview />} />
         <Route path="visitors" element={<DashboardVisitors />} />
+        <Route path="kiosks" element={<KioskCustomization />} />
         <Route path="settings" element={<DashboardSettings />} />
       </Routes>
     </DashboardLayout>
