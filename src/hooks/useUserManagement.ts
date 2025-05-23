@@ -27,7 +27,7 @@ export function useUserManagement() {
   useEffect(() => {
     const initial = users.reduce((acc, user) => ({ 
       ...acc, 
-      [user.id]: 'Viewer' 
+      [user.id]: user.roles.includes('Admin') ? 'Admin' : 'Viewer' 
     }), {});
     setOrgAccess(initial);
   }, [users]);
