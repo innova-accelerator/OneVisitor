@@ -19,8 +19,6 @@ export const FormLayoutBuilder = ({
   onChange
 }: FormLayoutBuilderProps) => {
   const {
-    draggedIndex,
-    setDraggedIndex,
     isDialogOpen,
     setIsDialogOpen,
     currentField,
@@ -31,7 +29,7 @@ export const FormLayoutBuilder = ({
     handleSaveField,
     handleToggleRequired,
     handleDeleteField,
-    handleDragOver,
+    handleReorderFields,
     handleAddDefaultField
   } = useFormFields(formFields, onChange);
 
@@ -63,9 +61,7 @@ export const FormLayoutBuilder = ({
             onEdit={handleOpenDialog}
             onToggleRequired={handleToggleRequired}
             onDelete={handleDeleteField}
-            draggedIndex={draggedIndex}
-            setDraggedIndex={setDraggedIndex}
-            handleDragOver={handleDragOver}
+            onReorder={handleReorderFields}
           />
         </div>
 
@@ -80,7 +76,7 @@ export const FormLayoutBuilder = ({
 
       <FieldDialog
         isOpen={isDialogOpen}
-        setIsDialogOpen={setIsDialogOpen}
+        onOpenChange={setIsDialogOpen}
         currentField={currentField}
         setCurrentField={setCurrentField}
         visitorTypes={visitorTypes}

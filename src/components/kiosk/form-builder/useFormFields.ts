@@ -3,7 +3,6 @@ import { useState } from "react";
 import { FormField } from "@/models/kiosk";
 
 export const useFormFields = (initialFields: FormField[], onFieldsChange: (fields: FormField[]) => void) => {
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentField, setCurrentField] = useState<FormField | null>(null);
 
@@ -69,20 +68,8 @@ export const useFormFields = (initialFields: FormField[], onFieldsChange: (field
     onFieldsChange(initialFields.filter(f => f.id !== id));
   };
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === index) return;
-    
-    const newFields = [...initialFields];
-    const draggedField = newFields[draggedIndex];
-    
-    // Remove the dragged item
-    newFields.splice(draggedIndex, 1);
-    // Insert it at the new position
-    newFields.splice(index, 0, draggedField);
-    
-    onFieldsChange(newFields);
-    setDraggedIndex(index);
+  const handleReorderFields = (reorderedFields: FormField[]) => {
+    onFieldsChange(reorderedFields);
   };
 
   const handleAddDefaultField = (field: any) => {
@@ -98,8 +85,6 @@ export const useFormFields = (initialFields: FormField[], onFieldsChange: (field
   };
 
   return {
-    draggedIndex,
-    setDraggedIndex,
     isDialogOpen,
     setIsDialogOpen,
     currentField,
@@ -110,7 +95,7 @@ export const useFormFields = (initialFields: FormField[], onFieldsChange: (field
     handleSaveField,
     handleToggleRequired,
     handleDeleteField,
-    handleDragOver,
+    handleReorderFields,
     handleAddDefaultField
   };
 };

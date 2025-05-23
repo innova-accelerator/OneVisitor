@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 interface FieldDialogProps {
   isOpen: boolean;
-  setIsDialogOpen: (open: boolean) => void;
+  onOpenChange: (open: boolean) => void;
   currentField: FormField | null;
   setCurrentField: (field: FormField | null) => void;
   visitorTypes: VisitorType[];
@@ -20,7 +20,7 @@ interface FieldDialogProps {
 
 export const FieldDialog = ({ 
   isOpen, 
-  setIsDialogOpen, 
+  onOpenChange,
   currentField, 
   setCurrentField,
   visitorTypes,

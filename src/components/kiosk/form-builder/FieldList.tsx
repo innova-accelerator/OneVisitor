@@ -1,16 +1,15 @@
 
-import { FormField } from "@/models/kiosk";
+import { FormField as FormFieldType } from "@/models/kiosk";
 import { Card, CardContent } from "@/components/ui/card";
-import { FormField as FormFieldComponent } from "./FormField";
+import { FormField } from "./FormField";
+import { useDraggableList } from "@/hooks/useDraggableList";
 
 interface FieldListProps {
-  formFields: FormField[];
-  onEdit: (field: FormField) => void;
+  formFields: FormFieldType[];
+  onEdit: (field: FormFieldType) => void;
   onToggleRequired: (id: string, required: boolean) => void;
   onDelete: (id: string) => void;
-  draggedIndex: number | null;
-  setDraggedIndex: (index: number | null) => void;
-  handleDragOver: (e: React.DragEvent, index: number) => void;
+  onReorder: (fields: FormFieldType[]) => void;
 }
 
 export const FieldList = ({
@@ -18,10 +17,15 @@ export const FieldList = ({
   onEdit,
   onToggleRequired,
   onDelete,
-  draggedIndex,
-  setDraggedIndex,
-  handleDragOver
+  onReorder
 }: FieldListProps) => {
+  const {
+    draggedIndex,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd
+  } = useDraggableList(formFields, onReorder);
+
   return (
     <Card>
       <CardContent className="p-4">
@@ -34,16 +38,16 @@ export const FieldList = ({
         ) : (
           <div className="space-y-2">
             {formFields.map((field, index) => (
-              <FormFieldComponent
+              <FormField
                 key={field.id}
                 field={field}
                 index={index}
                 onEdit={onEdit}
                 onToggleRequired={onToggleRequired}
                 onDelete={onDelete}
-                onDragStart={setDraggedIndex}
+                onDragStart={handleDragStart}
                 onDragOver={handleDragOver}
-                onDragEnd={() => setDraggedIndex(null)}
+                onDragEnd={handleDragEnd}
               />
             ))}
           </div>
