@@ -11,22 +11,18 @@ import CheckIn from "./pages/CheckIn";
 import Muster from "./pages/Muster";
 import NotFound from "./pages/NotFound";
 import TenantAdmin from "./pages/TenantAdmin";
+import { TenantBranding as TenantBrandingModel } from "./models/tenant";
 
 // Create Tenant Context
 export interface TenantContextType {
   currentTenant: string | null;
   setCurrentTenant: (tenant: string | null) => void;
-  tenantBranding: TenantBranding | null;
-  setTenantBranding: (branding: TenantBranding | null) => void;
+  tenantBranding: TenantBrandingModel | null;
+  setTenantBranding: (branding: TenantBrandingModel | null) => void;
 }
 
-export interface TenantBranding {
-  name: string;
-  logo: string;
-  primaryColor: string;
-  secondaryColor: string;
-  font: string;
-}
+// Export TenantBranding type from models/tenant.ts directly to ensure consistency
+export type TenantBranding = TenantBrandingModel;
 
 export const TenantContext = createContext<TenantContextType>({
   currentTenant: null,
@@ -39,7 +35,7 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [currentTenant, setCurrentTenant] = useState<string | null>(null);
-  const [tenantBranding, setTenantBranding] = useState<TenantBranding | null>(null);
+  const [tenantBranding, setTenantBranding] = useState<TenantBrandingModel | null>(null);
 
   // Parse subdomain/path tenant identifier
   const parseTenant = () => {
