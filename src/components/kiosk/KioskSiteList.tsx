@@ -179,7 +179,7 @@ export const KioskSiteList = ({
             <DialogTitle>Site Preview: {previewSite?.name}</DialogTitle>
             <DialogDescription>
               This is how your check-in site will appear to visitors at <strong>
-                {previewSite?.tenantId}.onevisitor.app/{getSitePath(previewSite || { name: '', tenantId: '', url: '' })}
+                {previewSite?.tenantId}.onevisitor.app/{getSitePath(previewSite as KioskSite)}
               </strong>
             </DialogDescription>
           </DialogHeader>
@@ -188,49 +188,53 @@ export const KioskSiteList = ({
               className="border rounded-md overflow-hidden"
               style={{height: "600px"}}
             >
-              <div 
-                className="w-full p-4"
-                style={{
-                  backgroundColor: previewSite?.branding.primaryColor,
-                  color: "white"
-                }}
-              >
-                <div className="flex items-center space-x-4">
-                  {previewSite?.branding.logo && (
-                    <img 
-                      src={previewSite.branding.logo}
-                      alt={previewSite.name}
-                      className="h-8"
-                    />
-                  )}
-                  <h2 className="text-xl font-semibold">
-                    {previewSite?.name} Check-in
-                  </h2>
-                </div>
-              </div>
-              <div className="p-6 bg-white">
-                <div className="prose">
-                  <h3>Welcome</h3>
-                  <p>{previewSite?.welcomeMessage || "Welcome to our check-in system."}</p>
-                  
-                  <div className="mt-8">
-                    <h4>I am here for:</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-                      {previewSite?.visitorTypes.map(type => (
-                        <div 
-                          key={type.id}
-                          className="p-4 border rounded-lg text-center cursor-pointer hover:bg-gray-50"
-                          style={{
-                            borderColor: previewSite.branding.secondaryColor
-                          }}
-                        >
-                          <span className="text-lg font-medium">{type.name}</span>
-                        </div>
-                      ))}
+              {previewSite && (
+                <>
+                  <div 
+                    className="w-full p-4"
+                    style={{
+                      backgroundColor: previewSite.branding.primaryColor,
+                      color: "white"
+                    }}
+                  >
+                    <div className="flex items-center space-x-4">
+                      {previewSite.branding.logo && (
+                        <img 
+                          src={previewSite.branding.logo}
+                          alt={previewSite.name}
+                          className="h-8"
+                        />
+                      )}
+                      <h2 className="text-xl font-semibold">
+                        {previewSite.name} Check-in
+                      </h2>
                     </div>
                   </div>
-                </div>
-              </div>
+                  <div className="p-6 bg-white">
+                    <div className="prose">
+                      <h3>Welcome</h3>
+                      <p>{previewSite.welcomeMessage || "Welcome to our check-in system."}</p>
+                      
+                      <div className="mt-8">
+                        <h4>I am here for:</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                          {previewSite.visitorTypes.map(type => (
+                            <div 
+                              key={type.id}
+                              className="p-4 border rounded-lg text-center cursor-pointer hover:bg-gray-50"
+                              style={{
+                                borderColor: previewSite.branding.secondaryColor
+                              }}
+                            >
+                              <span className="text-lg font-medium">{type.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
           <DialogFooter>

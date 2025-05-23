@@ -79,7 +79,7 @@ export const FormLayoutBuilder = ({
       </div>
 
       <FieldDialog
-        isDialogOpen={isDialogOpen}
+        isOpen={isDialogOpen}
         setIsDialogOpen={setIsDialogOpen}
         currentField={currentField}
         setCurrentField={setCurrentField}

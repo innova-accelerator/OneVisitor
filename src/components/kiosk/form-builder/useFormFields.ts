@@ -37,14 +37,14 @@ export const useFormFields = (initialFields: FormField[], onFieldsChange: (field
     setCurrentField(null);
   };
 
-  const handleSaveField = () => {
-    if (!currentField || !currentField.label) return;
+  const handleSaveField = (field: FormField) => {
+    if (!field || !field.label) return;
 
     // Create a valid ID if not present
-    const fieldId = currentField.id || currentField.label.toLowerCase().replace(/[^a-z0-9]/g, "-");
+    const fieldId = field.id || field.label.toLowerCase().replace(/[^a-z0-9]/g, "-");
     
     const updatedField = {
-      ...currentField,
+      ...field,
       id: fieldId
     };
 

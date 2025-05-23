@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { FormField } from "@/models/kiosk";
+import { FormField, VisitorType } from "@/models/kiosk";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,13 +10,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 interface FieldDialogProps {
   isOpen: boolean;
-  onClose: () => void;
-  field: FormField | null;
+  setIsDialogOpen: (open: boolean) => void;
+  currentField: FormField | null;
+  setCurrentField: (field: FormField | null) => void;
+  visitorTypes: VisitorType[];
   onSave: (field: FormField) => void;
+  onClose: () => void;
 }
 
-export const FieldDialog = ({ isOpen, onClose, field, onSave }: FieldDialogProps) => {
-  const isEditing = !!field;
+export const FieldDialog = ({ 
+  isOpen, 
+  setIsDialogOpen, 
+  currentField, 
+  setCurrentField,
+  visitorTypes,
+  onSave, 
+  onClose 
+}: FieldDialogProps) => {
+  const isEditing = !!currentField && !!currentField.id;
   const [formData, setFormData] = useState<FormField>({
     id: "",
     label: "",
@@ -25,8 +36,8 @@ export const FieldDialog = ({ isOpen, onClose, field, onSave }: FieldDialogProps
   });
 
   useEffect(() => {
-    if (field) {
-      setFormData({ ...field });
+    if (currentField) {
+      setFormData({ ...currentField });
     } else {
       setFormData({
         id: crypto.randomUUID(),
@@ -35,7 +46,7 @@ export const FieldDialog = ({ isOpen, onClose, field, onSave }: FieldDialogProps
         required: false
       });
     }
-  }, [field]);
+  }, [currentField]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
