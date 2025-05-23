@@ -123,10 +123,26 @@ export const useVisitorData = () => {
     return site ? site.name : siteId;
   };
 
-  // Handle export function
-  const handleExport = () => {
-    console.log("Exporting filtered visitors");
+  // Handle export function with filtered data
+  const handleExport = (filteredVisitors: SiteVisitor[]) => {
+    console.log("Exporting filtered visitors", filteredVisitors);
     // In a real app, this would generate a CSV/PDF
+    
+    // Example CSV export
+    const headers = ["Site", "Name", "Company", "Type", "Host", "Check-in Time", "Status"];
+    const csvData = filteredVisitors.map(visitor => [
+      getSiteName(visitor.siteId),
+      visitor.name,
+      visitor.company || "",
+      visitor.visitorType,
+      visitor.host,
+      visitor.checkInTime,
+      visitor.status === "active" ? "Checked In" : "Checked Out"
+    ]);
+    
+    // For demo purposes just log the data
+    console.log("CSV Headers:", headers);
+    console.log("CSV Data:", csvData);
   };
 
   return {

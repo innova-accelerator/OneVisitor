@@ -29,6 +29,11 @@ export const GlobalVisitorsDashboard = () => {
     return matchesSearch && matchesSites && matchesType;
   });
 
+  // Export filtered visitors data
+  const exportVisitorsData = () => {
+    handleExport(filteredVisitors);
+  };
+
   return (
     <div>
       <DashboardMetricsCards 
@@ -47,7 +52,7 @@ export const GlobalVisitorsDashboard = () => {
         setDate={setDate}
         liveUpdates={liveUpdates}
         setLiveUpdates={setLiveUpdates}
-        handleExport={handleExport}
+        handleExport={exportVisitorsData}
         sites={sites}
         allVisitorTypes={allVisitorTypes}
       />
