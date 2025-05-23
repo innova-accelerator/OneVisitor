@@ -9,6 +9,7 @@ import { Link, useParams } from "react-router-dom";
 import { Shield, Camera, QrCode, Clock, CheckCircle, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { TenantContext } from "@/App";
+import { TenantBranding } from "@/models/tenant";
 
 // Demo tenant branding data - in a real app this would come from API
 const demoTenants: Record<string, TenantBranding> = {
@@ -44,6 +45,7 @@ const demoTenants: Record<string, TenantBranding> = {
 
 const CheckIn = () => {
   const { setCurrentTenant, setTenantBranding, tenantBranding } = useContext(TenantContext);
+  const { sitePath } = useParams<{ sitePath?: string }>();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -58,17 +60,20 @@ const CheckIn = () => {
   });
   const { toast } = useToast();
 
-  // Load tenant branding when component mounts or tenantId changes
+  // Load tenant branding when component mounts or site path changes
   useEffect(() => {
-    if (tenantId && demoTenants[tenantId]) {
-      setCurrentTenant(tenantId);
-      setTenantBranding(demoTenants[tenantId]);
+    // Extract tenant ID from site path or use default
+    const currentTenantId = sitePath?.split('-')[0] || 'acme-corp';
+    
+    if (currentTenantId && demoTenants[currentTenantId]) {
+      setCurrentTenant(currentTenantId);
+      setTenantBranding(demoTenants[currentTenantId]);
     } else {
       // Default branding
       setCurrentTenant(null);
       setTenantBranding(null);
     }
-  }, [tenantId, setCurrentTenant, setTenantBranding]);
+  }, [sitePath, setCurrentTenant, setTenantBranding]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
