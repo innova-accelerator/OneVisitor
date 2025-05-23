@@ -1,4 +1,5 @@
-import { useState, useContext } from "react";
+
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -6,73 +7,23 @@ import { Plus } from "lucide-react";
 import { KioskSiteList } from "@/components/kiosk/KioskSiteList";
 import { KioskSiteModal } from "@/components/kiosk/KioskSiteModal";
 import { KioskSite } from "@/models/kiosk";
-import { LegacyTenantContext } from "@/App";
+import { useTenant } from "@/context/TenantContext";
+import { useSiteList } from "@/hooks/useSite";
 
 const KioskCustomization = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSite, setEditingSite] = useState<KioskSite | null>(null);
   const { toast } = useToast();
-  const { currentTenant } = useContext(LegacyTenantContext);
-
-  // Mock site data for demonstration
-  const [sites, setSites] = useState<KioskSite[]>([
-    {
-      id: "main-office",
-      tenantId: currentTenant || "tenant1",
-      name: "Main Office",
-      url: "main-office",
-      urlType: "path",
-      published: true,
-      branding: {
-        logo: "https://placehold.co/200x100?text=MainOffice",
-        primaryColor: "#2563eb",
-        secondaryColor: "#1e40af",
-        favicon: "https://placehold.co/32x32?text=MO"
-      },
-      welcomeMessage: "Welcome to our main office! Please check in.",
-      language: "en",
-      lastPublished: "2023-04-15T10:30:00Z",
-      visitorTypes: [
-        { id: "visitor", name: "Visitor", icon: "User" },
-        { id: "contractor", name: "Contractor", icon: "Briefcase" },
-        { id: "interview", name: "Interview", icon: "Clipboard" }
-      ],
-      formFields: [
-        { id: "name", label: "Full Name", type: "text", required: true },
-        { id: "email", label: "Email", type: "email", required: true },
-        { id: "company", label: "Company", type: "text", required: false },
-        { id: "host", label: "Host", type: "select", required: true }
-      ],
-      visitorCount: 12
-    },
-    {
-      id: "warehouse",
-      tenantId: currentTenant || "tenant1",
-      name: "Warehouse",
-      url: "warehouse-door",
-      urlType: "path",
-      published: false,
-      branding: {
-        logo: "https://placehold.co/200x100?text=Warehouse",
-        primaryColor: "#10b981",
-        secondaryColor: "#059669",
-        favicon: "https://placehold.co/32x32?text=WH"
-      },
-      welcomeMessage: "Welcome to our warehouse facility.",
-      language: "en",
-      lastPublished: null,
-      visitorTypes: [
-        { id: "delivery", name: "Delivery", icon: "Package" },
-        { id: "visitor", name: "Visitor", icon: "User" }
-      ],
-      formFields: [
-        { id: "name", label: "Full Name", type: "text", required: true },
-        { id: "company", label: "Company", type: "text", required: true },
-        { id: "purpose", label: "Purpose of Visit", type: "text", required: true }
-      ],
-      visitorCount: 5
-    }
-  ]);
+  const { currentTenant } = useTenant();
+  
+  // Use our new site list hook instead of local state
+  const { 
+    sites, 
+    addSite, 
+    updateSite, 
+    deleteSite, 
+    togglePublish 
+  } = useSiteList();
 
   const handleOpenModal = (site?: KioskSite) => {
     if (site) {
@@ -91,14 +42,14 @@ const KioskCustomization = () => {
   const handleSaveSite = (site: KioskSite) => {
     if (editingSite) {
       // Update existing site
-      setSites(sites.map(s => s.id === site.id ? site : s));
+      updateSite(site);
       toast({
         title: "Site updated",
         description: `${site.name} has been updated successfully`,
       });
     } else {
       // Add new site
-      setSites([...sites, site]);
+      addSite(site);
       toast({
         title: "Site created",
         description: `${site.name} has been created successfully`,
@@ -108,7 +59,7 @@ const KioskCustomization = () => {
   };
 
   const handleDeleteSite = (siteId: string) => {
-    setSites(sites.filter(site => site.id !== siteId));
+    deleteSite(siteId);
     toast({
       title: "Site deleted",
       description: "The site has been removed",
@@ -116,17 +67,8 @@ const KioskCustomization = () => {
   };
 
   const handleTogglePublish = (siteId: string, published: boolean) => {
-    setSites(sites.map(site => {
-      if (site.id === siteId) {
-        return {
-          ...site,
-          published,
-          lastPublished: published ? new Date().toISOString() : site.lastPublished
-        };
-      }
-      return site;
-    }));
-
+    togglePublish(siteId, published);
+    
     toast({
       title: published ? "Site published" : "Site unpublished",
       description: published 

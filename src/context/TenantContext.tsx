@@ -5,6 +5,8 @@ import { TenantBranding } from "@/models/tenant";
 interface TenantContextType {
   tenantId: string | null;
   orgShortname: string | null;
+  currentTenant: string | null;
+  setCurrentTenant: (tenant: string | null) => void;
   tenantBranding: TenantBranding | null;
   setTenantBranding: (branding: TenantBranding | null) => void;
 }
@@ -12,6 +14,8 @@ interface TenantContextType {
 const defaultTenantContext: TenantContextType = {
   tenantId: null,
   orgShortname: null,
+  currentTenant: null,
+  setCurrentTenant: () => {},
   tenantBranding: null,
   setTenantBranding: () => {}
 };
@@ -27,6 +31,7 @@ interface TenantProviderProps {
 export const TenantProvider = ({ children }: TenantProviderProps) => {
   const [tenantId, setTenantId] = useState<string | null>(null);
   const [orgShortname, setOrgShortname] = useState<string | null>(null);
+  const [currentTenant, setCurrentTenant] = useState<string | null>(null);
   const [tenantBranding, setTenantBranding] = useState<TenantBranding | null>(null);
 
   // Extract tenant information from the URL or local storage
@@ -49,6 +54,7 @@ export const TenantProvider = ({ children }: TenantProviderProps) => {
     const { id, shortname } = extractTenant();
     setTenantId(id);
     setOrgShortname(shortname);
+    setCurrentTenant(id);
     
     // In a real app, we would fetch tenant branding data from an API
     setTenantBranding({
@@ -63,6 +69,8 @@ export const TenantProvider = ({ children }: TenantProviderProps) => {
   const value = {
     tenantId,
     orgShortname,
+    currentTenant,
+    setCurrentTenant,
     tenantBranding,
     setTenantBranding
   };
