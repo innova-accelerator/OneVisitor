@@ -11,6 +11,12 @@ import CheckIn from "./pages/CheckIn";
 import NotFound from "./pages/NotFound";
 import TenantAdmin from "./pages/TenantAdmin";
 import { TenantBranding } from "@/models/tenant";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+
+// TODO: Integration Points
+// - Implement real tenant management and switching
+// - Connect tenant branding to API
+// - Add authentication and authorization
 
 // Define default branding
 const defaultBranding: TenantBranding = {
@@ -67,15 +73,17 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/dashboard/*" element={<Dashboard />} />
-              <Route path="/checkin/:sitePath?" element={<CheckIn />} />
-              <Route path="/admin/tenants" element={<TenantAdmin />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <ErrorBoundary>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/dashboard/*" element={<Dashboard />} />
+                <Route path="/checkin/:sitePath?" element={<CheckIn />} />
+                <Route path="/admin/tenants" element={<TenantAdmin />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </ErrorBoundary>
         </TooltipProvider>
       </TenantContext.Provider>
     </QueryClientProvider>

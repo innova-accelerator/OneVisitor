@@ -1,6 +1,7 @@
+
 import { useContext } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { UserCheck, Clock, CalendarClock, AlertTriangle } from "lucide-react";
+import { UserCheck, Clock, CalendarClock } from "lucide-react";
 import { TenantContext } from "@/App";
 
 interface StatsCardsProps {
@@ -19,18 +20,16 @@ export const StatsCards = ({ siteId }: StatsCardsProps = {}) => {
       activeVisitors: 5, // Fewer active visitors for a specific site
       avgDuration: "28m", // Different average for the specific site
       scheduledToday: 8, // Fewer scheduled visits for a specific site
-      emergencies: 0
     } : 
     {
       // Global mock data (all sites)
       activeVisitors: 14,
       avgDuration: "32m",
       scheduledToday: 26,
-      emergencies: 0
     };
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-6">
       <Card className="bg-white/70 backdrop-blur-sm border-0">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-gray-500">
@@ -73,21 +72,6 @@ export const StatsCards = ({ siteId }: StatsCardsProps = {}) => {
             {stats.scheduledToday}
           </div>
           <p className="text-xs text-gray-500">Upcoming appointments</p>
-        </CardContent>
-      </Card>
-      
-      <Card className="bg-white/70 backdrop-blur-sm border-0">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-gray-500">
-            Emergency Alerts
-          </CardTitle>
-          <AlertTriangle className="h-4 w-4 text-gray-500" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold text-green-500">
-            {stats.emergencies}
-          </div>
-          <p className="text-xs text-gray-500">No active emergencies</p>
         </CardContent>
       </Card>
     </div>

@@ -1,10 +1,16 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { Shield, Users, Clock, Smartphone, FileText, AlertTriangle, Building, Palette, Globe } from "lucide-react";
+import { Shield, Users, Clock, Smartphone, FileText, Building, Palette, Globe } from "lucide-react";
 import { useContext } from "react";
 import { TenantContext } from "@/App";
+
+// TODO: Integration Points
+// - Connect tenant branding with real API data
+// - Add authentication for sign-in links
+// - Replace static content with CMS-driven content
 
 const Index = () => {
   const { currentTenant, tenantBranding } = useContext(TenantContext);
@@ -33,12 +39,6 @@ const Index = () => {
       title: "Digital Waivers",
       description: "Capture signatures, NDAs, and compliance documents with full audit trails.",
       color: "bg-orange-500"
-    },
-    {
-      icon: AlertTriangle,
-      title: "Emergency Mustering",
-      description: "Real-time visitor tracking with instant evacuation alerts and muster list generation.",
-      color: "bg-red-500"
     },
     {
       icon: Clock,
