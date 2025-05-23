@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { User } from '@/types/user';
 import {
@@ -10,7 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { users } from 'lucide-react';
+import { Users } from 'lucide-react';
 
 /**
  * UsersTable
