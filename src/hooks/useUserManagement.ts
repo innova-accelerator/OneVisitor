@@ -114,12 +114,18 @@ export function useUserManagement() {
 
   // Save a new or updated user
   const handleSaveUser = (data: UserFormData) => {
+    // Filter out Superadmin from any roles during save
+    const filteredData = {
+      ...data,
+      roles: data.roles.filter(r => r !== 'Superadmin')
+    };
+    
     if (currentUser) {
       // Update existing user
       setUsers(prevUsers => 
         prevUsers.map(user => 
           user.id === currentUser.id 
-            ? { ...user, ...data } 
+            ? { ...user, ...filteredData } 
             : user
         )
       );
@@ -127,7 +133,7 @@ export function useUserManagement() {
       // Create new user with generated ID
       const newUser: User = {
         id: uuidv4(),
-        ...data,
+        ...filteredData,
         createdAt: new Date().toISOString()
       };
       setUsers(prevUsers => [...prevUsers, newUser]);
@@ -137,7 +143,7 @@ export function useUserManagement() {
     setIsEditorOpen(false);
     
     // TODO: In a real implementation, this would call the create or update user API endpoint
-    console.log('Save user:', currentUser ? 'Update' : 'Create', data);
+    console.log('Save user:', currentUser ? 'Update' : 'Create', filteredData);
   };
 
   // Confirm deactivation of a user

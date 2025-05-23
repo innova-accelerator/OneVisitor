@@ -18,8 +18,7 @@ export interface User {
 export type UserFormData = Omit<User, 'id' | 'createdAt'>;
 
 export const AVAILABLE_ROLES = [
-  "Superadmin",
-  "TenantAdmin", 
+  "Admin", // Renamed from TenantAdmin
   "Receptionist", 
   "SecurityOfficer"
 ] as const;

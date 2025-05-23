@@ -57,63 +57,70 @@ export function UsersTable({
             </TableCell>
           </TableRow>
         ) : (
-          users.map((user) => (
-            <TableRow 
-              key={user.id}
-              className={!user.isActive ? 'opacity-60' : ''}
-            >
-              <TableCell className="font-medium">{user.name}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>
-                <select
-                  value={orgAccess[user.id] || 'Viewer'}
-                  onChange={e => onOrgAccessChange(user, e.target.value as 'Viewer'|'Admin')}
-                  className="border rounded px-2 py-1"
-                >
-                  <option value="Viewer">Viewer</option>
-                  <option value="Admin">Admin</option>
-                </select>
-              </TableCell>
-              <TableCell>{user.roles.join(', ')}</TableCell>
-              <TableCell>
-                <Button 
-                  variant="link" 
-                  size="sm"
-                  onClick={() => onManagePermissions(user)}
-                >
-                  Manage...
-                </Button>
-              </TableCell>
-              <TableCell>
-                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                  user.isActive 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-gray-100 text-gray-800'
-                }`}>
-                  {user.isActive ? 'Active' : 'Inactive'}
-                </span>
-              </TableCell>
-              <TableCell className="text-right space-x-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => onEdit(user)}
-                >
-                  Edit
-                </Button>
-                {user.isActive && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => onDeactivate(user)}
+          users.map((user) => {
+            // Map role names and filter out Superadmin
+            const displayRoles = user.roles
+              .filter(r => r !== 'Superadmin')
+              .map(r => r === 'TenantAdmin' ? 'Admin' : r);
+              
+            return (
+              <TableRow 
+                key={user.id}
+                className={!user.isActive ? 'opacity-60' : ''}
+              >
+                <TableCell className="font-medium">{user.name}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>
+                  <select
+                    value={orgAccess[user.id] || 'Viewer'}
+                    onChange={e => onOrgAccessChange(user, e.target.value as 'Viewer'|'Admin')}
+                    className="border rounded px-2 py-1"
                   >
-                    Deactivate
+                    <option value="Viewer">Viewer</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </TableCell>
+                <TableCell>{displayRoles.join(', ')}</TableCell>
+                <TableCell>
+                  <Button 
+                    variant="link" 
+                    size="sm"
+                    onClick={() => onManagePermissions(user)}
+                  >
+                    Manage...
                   </Button>
-                )}
-              </TableCell>
-            </TableRow>
-          ))
+                </TableCell>
+                <TableCell>
+                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                    user.isActive 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {user.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right space-x-2">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => onEdit(user)}
+                  >
+                    Edit
+                  </Button>
+                  {user.isActive && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => onDeactivate(user)}
+                    >
+                      Deactivate
+                    </Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })
         )}
       </TableBody>
     </Table>
