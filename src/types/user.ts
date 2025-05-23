@@ -18,15 +18,14 @@ export interface User {
 export type UserFormData = Omit<User, 'id' | 'createdAt'>;
 
 export const AVAILABLE_ROLES = [
-  "Admin", 
+  "Admin", // Renamed from TenantAdmin
   "Receptionist", 
   "SecurityOfficer"
 ] as const;
 
 export type UserRole = typeof AVAILABLE_ROLES[number];
 
-// TODO: Integration Points
-// - This will be expanded when implementing the actual API integration
+// TODO: This will be expanded when implementing the actual API integration
 export interface UserListResponse {
   users: User[];
   totalCount: number;
