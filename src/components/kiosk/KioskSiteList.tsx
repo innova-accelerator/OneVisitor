@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Edit, Eye, Trash2 } from "lucide-react";
+import { Edit, Eye, Trash2, Users } from "lucide-react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Link } from "react-router-dom";
 
 interface KioskSiteListProps {
   sites: KioskSite[];
@@ -38,6 +39,12 @@ export const KioskSiteList = ({
            new Date(dateString).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
   };
 
+  const getSitePath = (site: KioskSite) => {
+    // Convert site name to URL-friendly path if no custom path is defined
+    const path = site.url || site.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    return path;
+  };
+
   return (
     <>
       <Card className="bg-white/70 backdrop-blur-sm border-0">
@@ -46,7 +53,8 @@ export const KioskSiteList = ({
             <TableHeader>
               <TableRow>
                 <TableHead>Site Name</TableHead>
-                <TableHead>URL</TableHead>
+                <TableHead>URL Path</TableHead>
+                <TableHead>Visitors Today</TableHead>
                 <TableHead>Last Published</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -68,11 +76,22 @@ export const KioskSiteList = ({
                     </div>
                   </TableCell>
                   <TableCell>
-                    {site.urlType === "subdomain" ? (
-                      <span>{site.url}.onevisitor.app</span>
-                    ) : (
-                      <span>onevisitor.app/{site.url}</span>
-                    )}
+                    <code className="bg-gray-100 px-2 py-1 rounded text-xs">
+                      /{getSitePath(site)}
+                    </code>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center">
+                      <Badge variant="outline" className="bg-blue-50 text-blue-800 mr-2">
+                        {site.visitorCount || 0}
+                      </Badge>
+                      <Link to={`/dashboard/kiosks/${site.id}/visitors`}>
+                        <Button size="sm" variant="ghost">
+                          <Users className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                      </Link>
+                    </div>
                   </TableCell>
                   <TableCell>{formatDate(site.lastPublished)}</TableCell>
                   <TableCell>
@@ -121,7 +140,7 @@ export const KioskSiteList = ({
               ))}
               {sites.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                     No sites created yet. Click "Add Site" to create your first check-in site.
                   </TableCell>
                 </TableRow>
@@ -159,7 +178,9 @@ export const KioskSiteList = ({
           <DialogHeader>
             <DialogTitle>Site Preview: {previewSite?.name}</DialogTitle>
             <DialogDescription>
-              This is how your check-in site will appear to visitors.
+              This is how your check-in site will appear to visitors at <strong>
+                {previewSite?.tenantId}.onevisitor.app/{getSitePath(previewSite || { name: '', tenantId: '', url: '' })}
+              </strong>
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4">

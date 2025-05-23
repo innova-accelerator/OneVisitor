@@ -4,11 +4,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState, createContext } from "react";
+import { useState, createContext, useEffect } from "react";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import CheckIn from "./pages/CheckIn";
-import Muster from "./pages/Muster";
 import NotFound from "./pages/NotFound";
 import TenantAdmin from "./pages/TenantAdmin";
 import { TenantBranding as TenantBrandingModel } from "./models/tenant";
@@ -37,11 +36,37 @@ const App = () => {
   const [currentTenant, setCurrentTenant] = useState<string | null>(null);
   const [tenantBranding, setTenantBranding] = useState<TenantBrandingModel | null>(null);
 
-  // Parse subdomain/path tenant identifier
-  const parseTenant = () => {
-    // Logic to extract tenant from subdomain or path
-    // e.g., acme.onevisitor.app or onevisitor.app/acme
-  };
+  // Parse tenant identifier from URL
+  useEffect(() => {
+    // Extract tenant from subdomain or path
+    const extractTenant = () => {
+      const hostname = window.location.hostname;
+      
+      // Check if we're on a subdomain
+      if (hostname !== 'localhost' && hostname !== 'onevisitor.app') {
+        const subdomain = hostname.split('.')[0];
+        if (subdomain && subdomain !== 'www') {
+          return subdomain;
+        }
+      }
+      
+      // Fallback for development - get from URL path or use default
+      return 'acme-corp'; // Default for development
+    };
+
+    const tenant = extractTenant();
+    setCurrentTenant(tenant);
+    
+    // In a real app, we would fetch tenant branding data
+    // For now, set some reasonable defaults based on the tenant
+    setTenantBranding({
+      name: tenant === 'acme-corp' ? 'Acme Corporation' : 'OneVisitor',
+      logo: tenant === 'acme-corp' ? 'https://placehold.co/100x50?text=ACME' : undefined,
+      primaryColor: tenant === 'acme-corp' ? '#2563eb' : '#3B82F6',
+      secondaryColor: tenant === 'acme-corp' ? '#1e40af' : '#2563EB',
+      font: 'Inter, sans-serif'
+    });
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -58,8 +83,7 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/dashboard/*" element={<Dashboard />} />
-              <Route path="/checkin/:tenantId?" element={<CheckIn />} />
-              <Route path="/muster/:tenantId?" element={<Muster />} />
+              <Route path="/checkin/:sitePath?" element={<CheckIn />} />
               <Route path="/admin/tenants" element={<TenantAdmin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

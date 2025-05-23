@@ -60,8 +60,8 @@ export interface KioskSite {
   id: string;
   tenantId: string;
   name: string;
-  url: string; 
-  urlType: "subdomain" | "path";
+  url: string;  // URL path for the site (e.g., "hq-lobby", "warehouse-door")
+  urlType: "path";  // Only using path-based URLs now
   published: boolean;
   branding: KioskBranding;
   welcomeMessage: string;

@@ -1,25 +1,25 @@
 
-import { useState } from "react";
-import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useContext } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Eye, Trash2, Upload, Check, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import { KioskSiteList } from "@/components/kiosk/KioskSiteList";
 import { KioskSiteModal } from "@/components/kiosk/KioskSiteModal";
 import { KioskSite } from "@/models/kiosk";
+import { TenantContext } from "@/App";
 
 const KioskCustomization = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSite, setEditingSite] = useState<KioskSite | null>(null);
   const { toast } = useToast();
+  const { currentTenant } = useContext(TenantContext);
 
   // Mock site data for demonstration
   const [sites, setSites] = useState<KioskSite[]>([
     {
       id: "main-office",
-      tenantId: "tenant1", // Added tenantId
+      tenantId: currentTenant || "tenant1",
       name: "Main Office",
       url: "main-office",
       urlType: "path",
@@ -43,13 +43,14 @@ const KioskCustomization = () => {
         { id: "email", label: "Email", type: "email", required: true },
         { id: "company", label: "Company", type: "text", required: false },
         { id: "host", label: "Host", type: "select", required: true }
-      ]
+      ],
+      visitorCount: 12
     },
     {
       id: "warehouse",
-      tenantId: "tenant1", // Added tenantId
+      tenantId: currentTenant || "tenant1",
       name: "Warehouse",
-      url: "warehouse",
+      url: "warehouse-door",
       urlType: "path",
       published: false,
       branding: {
@@ -69,7 +70,8 @@ const KioskCustomization = () => {
         { id: "name", label: "Full Name", type: "text", required: true },
         { id: "company", label: "Company", type: "text", required: true },
         { id: "purpose", label: "Purpose of Visit", type: "text", required: true }
-      ]
+      ],
+      visitorCount: 5
     }
   ]);
 
@@ -135,9 +137,9 @@ const KioskCustomization = () => {
   };
 
   return (
-    <DashboardLayout>
+    <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Kiosk Customization</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Site Management</h1>
         <p className="text-gray-600">Create and manage visitor check-in sites for your organization</p>
       </div>
 
@@ -146,7 +148,9 @@ const KioskCustomization = () => {
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-xl font-semibold">Your Check-in Sites</h2>
-              <p className="text-sm text-gray-500">Configure multiple check-in experiences for different locations</p>
+              <p className="text-sm text-gray-500">
+                Configure multiple check-in experiences at {currentTenant || "your-org"}.onevisitor.app/&lt;site-path&gt;
+              </p>
             </div>
             <Button onClick={() => handleOpenModal()}>
               <Plus className="h-4 w-4 mr-2" />
@@ -169,7 +173,7 @@ const KioskCustomization = () => {
         onSave={handleSaveSite}
         site={editingSite}
       />
-    </DashboardLayout>
+    </div>
   );
 };
 

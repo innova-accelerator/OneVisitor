@@ -1,11 +1,14 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Shield, Home, Users, Settings, MonitorSmartphone } from "lucide-react";
+import { Shield, Users, Settings, MonitorSmartphone, HelpCircle } from "lucide-react";
+import { useContext } from "react";
+import { TenantContext } from "@/App";
 
 export const DashboardNavbar = () => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { tenantBranding } = useContext(TenantContext);
 
   const isActive = (path: string) => {
     return currentPath.includes(path);
@@ -17,16 +20,22 @@ export const DashboardNavbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex">
             <Link to="/" className="flex items-center flex-shrink-0">
-              <Shield className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">OneVisitor</span>
+              {tenantBranding?.logo ? (
+                <img src={tenantBranding.logo} alt="Logo" className="h-8 w-auto" />
+              ) : (
+                <Shield className="h-8 w-8 text-blue-600" />
+              )}
+              <span className="ml-2 text-xl font-bold text-gray-900">
+                {tenantBranding?.name || "OneVisitor"}
+              </span>
             </Link>
             <div className="ml-10 flex items-center space-x-4">
-              <Link to="/dashboard/overview">
+              <Link to="/dashboard/kiosks">
                 <Button 
-                  variant={isActive("/dashboard/overview") ? "default" : "ghost"}
+                  variant={isActive("/dashboard/kiosks") ? "default" : "ghost"}
                 >
-                  <Home className="h-4 w-4 mr-2" />
-                  Overview
+                  <MonitorSmartphone className="h-4 w-4 mr-2" />
+                  Sites
                 </Button>
               </Link>
               <Link to="/dashboard/visitors">
@@ -37,20 +46,20 @@ export const DashboardNavbar = () => {
                   Visitors
                 </Button>
               </Link>
-              <Link to="/dashboard/kiosks">
-                <Button 
-                  variant={isActive("/dashboard/kiosks") ? "default" : "ghost"}
-                >
-                  <MonitorSmartphone className="h-4 w-4 mr-2" />
-                  Sites
-                </Button>
-              </Link>
               <Link to="/dashboard/settings">
                 <Button 
                   variant={isActive("/dashboard/settings") ? "default" : "ghost"}
                 >
                   <Settings className="h-4 w-4 mr-2" />
                   Settings
+                </Button>
+              </Link>
+              <Link to="/dashboard/help">
+                <Button 
+                  variant={isActive("/dashboard/help") ? "default" : "ghost"}
+                >
+                  <HelpCircle className="h-4 w-4 mr-2" />
+                  Help
                 </Button>
               </Link>
             </div>

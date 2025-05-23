@@ -2,12 +2,21 @@
 import { KioskSite } from "@/models/kiosk";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useContext } from "react";
+import { TenantContext } from "@/App";
 
 interface BrandingTabContentProps {
   site: KioskSite;
-  handleChange: (field: string, value: any) => void;
-  handleBrandingChange: (field: string, value: any) => void;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleBrandingChange: (field: string, value: string) => void;
   handleUrlChange: (value: string) => void;
 }
 
@@ -15,218 +24,239 @@ export const BrandingTabContent = ({
   site,
   handleChange,
   handleBrandingChange,
-  handleUrlChange
+  handleUrlChange,
 }: BrandingTabContentProps) => {
+  const { currentTenant } = useContext(TenantContext);
+  const tenantId = currentTenant || "your-org";
+
+  // Function to create URL-friendly path from name
+  const generateUrlPath = (name: string) => {
+    return name.toLowerCase()
+      .replace(/\s+/g, '-')      // Replace spaces with hyphens
+      .replace(/[^a-z0-9-]/g, '') // Remove non-alphanumeric characters except hyphens
+      .replace(/-+/g, '-');      // Replace multiple consecutive hyphens with a single one
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="site-name">Site Name</Label>
-          <Input 
-            id="site-name" 
-            value={site.name} 
-            onChange={(e) => handleChange("name", e.target.value)}
-            placeholder="Main Office"
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="url-type">URL Type</Label>
-          <div className="flex space-x-2 mt-1">
-            <Button
-              type="button"
-              variant={site.urlType === "path" ? "default" : "outline"}
-              onClick={() => handleChange("urlType", "path")}
-              className="flex-1"
-            >
-              Path
-            </Button>
-            <Button
-              type="button"
-              variant={site.urlType === "subdomain" ? "default" : "outline"}
-              onClick={() => handleChange("urlType", "subdomain")}
-              className="flex-1"
-            >
-              Subdomain
-            </Button>
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="site-url">
-            {site.urlType === "subdomain" 
-              ? "Subdomain" 
-              : "Path"
+    <div className="space-y-6">
+      {/* Site Name */}
+      <div>
+        <Label htmlFor="name">Site Name</Label>
+        <Input
+          id="name"
+          name="name"
+          value={site.name}
+          onChange={(e) => {
+            handleChange(e);
+            if (!site.id) { // Auto-generate URL path only for new sites
+              handleUrlChange(generateUrlPath(e.target.value));
             }
-          </Label>
-          <div className="flex items-center mt-1">
-            {site.urlType === "subdomain" && (
-              <div className="bg-gray-100 px-3 py-2 rounded-l-md border border-r-0 text-gray-500">
-                https://
-              </div>
-            )}
-            <Input
-              id="site-url"
-              value={site.url}
-              onChange={(e) => handleUrlChange(e.target.value)}
-              placeholder={site.urlType === "subdomain" ? "office" : "checkin"}
-              className={site.urlType === "subdomain" ? "rounded-l-none" : ""}
-            />
-            {site.urlType === "subdomain" ? (
-              <div className="bg-gray-100 px-3 py-2 rounded-r-md border border-l-0 text-gray-500">
-                .onevisitor.app
-              </div>
-            ) : (
-              <div className="bg-gray-100 px-3 py-2 rounded-r-md border border-l-0 text-gray-500">
-                .onevisitor.app/{site.url}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="logo-url">Logo URL</Label>
-          <Input
-            id="logo-url"
-            value={site.branding.logo}
-            onChange={(e) => handleBrandingChange("logo", e.target.value)}
-            placeholder="https://example.com/logo.png"
-          />
-          <div className="mt-2">
-            <Button variant="outline" size="sm">
-              Upload Logo
-            </Button>
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="favicon-url">Favicon URL</Label>
-          <Input
-            id="favicon-url"
-            value={site.branding.favicon}
-            onChange={(e) => handleBrandingChange("favicon", e.target.value)}
-            placeholder="https://example.com/favicon.ico"
-          />
-          <div className="mt-2">
-            <Button variant="outline" size="sm">
-              Upload Favicon
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="primary-color">Primary Color</Label>
-            <div className="flex space-x-2 mt-1">
-              <input
-                type="color"
-                id="primary-color"
-                value={site.branding.primaryColor}
-                onChange={(e) => handleBrandingChange("primaryColor", e.target.value)}
-                className="h-10 w-10 border rounded"
-              />
-              <Input
-                value={site.branding.primaryColor}
-                onChange={(e) => handleBrandingChange("primaryColor", e.target.value)}
-              />
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="secondary-color">Secondary Color</Label>
-            <div className="flex space-x-2 mt-1">
-              <input
-                type="color"
-                id="secondary-color"
-                value={site.branding.secondaryColor}
-                onChange={(e) => handleBrandingChange("secondaryColor", e.target.value)}
-                className="h-10 w-10 border rounded"
-              />
-              <Input
-                value={site.branding.secondaryColor}
-                onChange={(e) => handleBrandingChange("secondaryColor", e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="welcome-message">Welcome Message</Label>
-          <textarea
-            id="welcome-message"
-            value={site.welcomeMessage}
-            onChange={(e) => handleChange("welcomeMessage", e.target.value)}
-            className="w-full p-2 border rounded-md mt-1"
-            rows={4}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="language">Language</Label>
-          <select
-            id="language"
-            value={site.language}
-            onChange={(e) => handleChange("language", e.target.value)}
-            className="w-full p-2 border rounded-md mt-1"
-          >
-            <option value="en">English</option>
-            <option value="es">Spanish</option>
-            <option value="fr">French</option>
-            <option value="de">German</option>
-          </select>
-        </div>
+          }}
+          className="mt-1"
+        />
+        <p className="text-sm text-gray-500 mt-1">
+          The name of your check-in location (e.g., "HQ Lobby", "Warehouse Door")
+        </p>
       </div>
       
-      {/* Live Preview */}
-      <SiteBrandingPreview site={site} />
-    </div>
-  );
-};
-
-// Site Branding Preview component
-const SiteBrandingPreview = ({ site }: { site: KioskSite }) => {
-  return (
-    <div className="border rounded-md overflow-hidden">
-      <div 
-        className="w-full p-4"
-        style={{
-          backgroundColor: site.branding.primaryColor,
-          color: "white"
-        }}
-      >
-        <div className="flex items-center space-x-4">
-          {site.branding.logo && (
-            <img 
-              src={site.branding.logo}
-              alt={site.name}
-              className="h-8"
-            />
-          )}
-          <h2 className="text-xl font-semibold">
-            {site.name || "Site Name"} Check-in
-          </h2>
+      {/* URL Path */}
+      <div>
+        <Label htmlFor="url">URL Path</Label>
+        <div className="flex items-center mt-1">
+          <div className="bg-gray-100 px-3 py-2 rounded-l-md text-gray-500 border border-r-0 border-gray-300">
+            {tenantId}.onevisitor.app/
+          </div>
+          <Input
+            id="url"
+            name="url"
+            value={site.url}
+            onChange={(e) => handleUrlChange(e.target.value)}
+            className="rounded-l-none"
+          />
         </div>
+        <p className="text-sm text-gray-500 mt-1">
+          The path where this site will be accessible (auto-generated from name, but you can customize it)
+        </p>
       </div>
-      <div className="p-6">
-        <div className="prose">
-          <h3>Welcome</h3>
-          <p>{site.welcomeMessage}</p>
-          
-          <div className="mt-8">
-            <h4>I am here for:</h4>
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              {site.visitorTypes.map(type => (
-                <div 
-                  key={type.id}
-                  className="p-4 border rounded-lg text-center cursor-pointer hover:bg-gray-50"
-                  style={{
-                    borderColor: site.branding.secondaryColor
-                  }}
-                >
-                  <span className="text-lg font-medium">{type.name}</span>
-                </div>
-              ))}
+
+      {/* Welcome Message */}
+      <div>
+        <Label htmlFor="welcomeMessage">Welcome Message</Label>
+        <Input
+          id="welcomeMessage"
+          name="welcomeMessage"
+          value={site.welcomeMessage}
+          onChange={handleChange}
+          className="mt-1"
+        />
+      </div>
+
+      {/* Language */}
+      <div>
+        <Label htmlFor="language">Default Language</Label>
+        <Select
+          value={site.language}
+          onValueChange={(value) => {
+            const event = {
+              target: { name: "language", value },
+            } as React.ChangeEvent<HTMLInputElement>;
+            handleChange(event);
+          }}
+        >
+          <SelectTrigger id="language" className="mt-1">
+            <SelectValue placeholder="Select language" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="en">English</SelectItem>
+            <SelectItem value="es">Spanish</SelectItem>
+            <SelectItem value="fr">French</SelectItem>
+            <SelectItem value="de">German</SelectItem>
+            <SelectItem value="zh">Chinese</SelectItem>
+            <SelectItem value="ja">Japanese</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Branding Colors */}
+      <div>
+        <Label>Branding Colors</Label>
+        <div className="grid grid-cols-2 gap-4 mt-1">
+          <div>
+            <Label htmlFor="primaryColor" className="text-xs">
+              Primary Color
+            </Label>
+            <div className="flex mt-1">
+              <Input
+                id="primaryColor"
+                type="color"
+                value={site.branding.primaryColor}
+                onChange={(e) => handleBrandingChange("primaryColor", e.target.value)}
+                className="w-12 h-10 p-1"
+              />
+              <Input
+                type="text"
+                value={site.branding.primaryColor}
+                onChange={(e) => handleBrandingChange("primaryColor", e.target.value)}
+                className="flex-1 ml-2"
+              />
             </div>
           </div>
+          <div>
+            <Label htmlFor="secondaryColor" className="text-xs">
+              Secondary Color
+            </Label>
+            <div className="flex mt-1">
+              <Input
+                id="secondaryColor"
+                type="color"
+                value={site.branding.secondaryColor}
+                onChange={(e) => handleBrandingChange("secondaryColor", e.target.value)}
+                className="w-12 h-10 p-1"
+              />
+              <Input
+                type="text"
+                value={site.branding.secondaryColor}
+                onChange={(e) => handleBrandingChange("secondaryColor", e.target.value)}
+                className="flex-1 ml-2"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Logo Upload */}
+      <div>
+        <Label>Logo</Label>
+        <div className="mt-1 p-4 border-2 border-dashed border-gray-300 rounded-md">
+          {site.branding.logo ? (
+            <div className="flex items-center justify-between">
+              <img
+                src={site.branding.logo}
+                alt="Site logo"
+                className="h-12"
+              />
+              <button
+                type="button"
+                onClick={() => handleBrandingChange("logo", "")}
+                className="text-sm text-red-600 hover:text-red-800"
+              >
+                Remove
+              </button>
+            </div>
+          ) : (
+            <div className="text-center">
+              <p className="text-sm text-gray-500">
+                Upload your logo (PNG or SVG recommended)
+              </p>
+              <Input
+                id="logo"
+                type="url"
+                placeholder="Enter logo URL"
+                className="mt-2"
+                onChange={(e) => handleBrandingChange("logo", e.target.value)}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Favicon Upload */}
+      <div>
+        <Label>Favicon</Label>
+        <div className="mt-1 p-4 border-2 border-dashed border-gray-300 rounded-md">
+          {site.branding.favicon ? (
+            <div className="flex items-center justify-between">
+              <img
+                src={site.branding.favicon}
+                alt="Site favicon"
+                className="h-8"
+              />
+              <button
+                type="button"
+                onClick={() => handleBrandingChange("favicon", "")}
+                className="text-sm text-red-600 hover:text-red-800"
+              >
+                Remove
+              </button>
+            </div>
+          ) : (
+            <div className="text-center">
+              <p className="text-sm text-gray-500">
+                Upload a favicon (32x32px recommended)
+              </p>
+              <Input
+                id="favicon"
+                type="url"
+                placeholder="Enter favicon URL"
+                className="mt-2"
+                onChange={(e) => handleBrandingChange("favicon", e.target.value)}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Live Preview */}
+      <div className="border rounded-md overflow-hidden">
+        <div className="bg-gray-100 p-2 border-b">
+          <p className="text-xs font-medium">Live Preview</p>
+        </div>
+        <div
+          className="w-full p-4"
+          style={{
+            backgroundColor: site.branding.primaryColor,
+            color: "white",
+          }}
+        >
+          <div className="flex items-center space-x-4">
+            {site.branding.logo && (
+              <img src={site.branding.logo} alt="Logo" className="h-8" />
+            )}
+            <h2 className="text-xl font-semibold">{site.name} Check-in</h2>
+          </div>
+        </div>
+        <div className="p-4">
+          <p className="text-sm">{site.welcomeMessage}</p>
         </div>
       </div>
     </div>
