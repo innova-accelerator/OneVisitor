@@ -62,31 +62,18 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <Shield className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">OneVisitor</span>
-            </div>
-            <div className="flex space-x-4">
-              <Link to="/dashboard">
-                <Button variant="ghost">Dashboard</Button>
-              </Link>
-              <Link to="/checkin">
-                <Button variant="ghost">Check In</Button>
-              </Link>
-              <Link to="/muster">
-                <Button variant="ghost">Emergency</Button>
-              </Link>
-              <Link to="/admin/tenants">
-                <Button variant="ghost">Admin</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      {/* Simplified Navigation */}
+      <header className="flex items-center justify-between px-4 py-2 bg-white shadow">
+        <Link to="/" className="flex items-center space-x-2">
+          <Shield className="h-6 w-6 text-blue-600" />
+          <span className="text-xl font-bold text-gray-800">OneVisitor</span>
+        </Link>
+        <nav>
+          <Link to="/dashboard" className="text-blue-600 hover:underline">
+            Sign In
+          </Link>
+        </nav>
+      </header>
 
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 sm:py-32">
