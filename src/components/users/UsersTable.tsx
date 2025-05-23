@@ -10,24 +10,17 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
-import { ErrorBanner } from '@/components/ui/error-banner';
-
-// TODO: Integration Points
-// - Replace mock data with real API calls
-// - Add sorting functionality when API supports it
-// - Add pagination when API supports it
 
 /**
  * UsersTable
  * 
  * Displays a table of users with actions for editing and deactivation.
  * Currently uses in-memory data passed as props.
+ * 
+ * TODO: When implementing API, add sort functionality and loading states.
  */
 interface UsersTableProps {
   users: User[];
-  isLoading?: boolean;
-  error?: Error | null;
   onEdit: (user: User) => void;
   onDeactivate: (user: User) => void;
   onManagePermissions: (user: User) => void;
@@ -37,17 +30,12 @@ interface UsersTableProps {
 
 export function UsersTable({ 
   users, 
-  isLoading = false,
-  error = null,
   onEdit, 
   onDeactivate,
   onManagePermissions,
   orgAccess,
   onOrgAccessChange
 }: UsersTableProps) {
-  if (isLoading) return <Spinner />;
-  if (error) return <ErrorBanner message={error.message} />;
-
   return (
     <Table>
       <TableHeader>

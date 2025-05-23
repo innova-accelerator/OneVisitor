@@ -12,27 +12,13 @@ import { Button } from "@/components/ui/button";
 import { User, Clock } from "lucide-react";
 import { useState } from "react";
 import { SiteVisitor } from "@/models/kiosk";
-import { Spinner } from "@/components/ui/spinner";
-import { ErrorBanner } from "@/components/ui/error-banner";
-
-// TODO: Integration Points
-// - Fetch visitor data from API
-// - Add pagination and filtering
-// - Implement real-time updates
 
 interface VisitorTableProps {
   siteId?: string;
   visitors?: SiteVisitor[];
-  isLoading?: boolean;
-  error?: Error | null;
 }
 
-export const VisitorTable = ({ 
-  siteId, 
-  visitors: propVisitors,
-  isLoading = false,
-  error = null
-}: VisitorTableProps) => {
+export const VisitorTable = ({ siteId, visitors: propVisitors }: VisitorTableProps) => {
   // Mock data - in a real app, this would come from an API
   const defaultVisitors: SiteVisitor[] = [
     {
@@ -72,9 +58,6 @@ export const VisitorTable = ({
 
   const [visitors] = useState<SiteVisitor[]>(propVisitors || defaultVisitors);
   
-  if (isLoading) return <Spinner />;
-  if (error) return <ErrorBanner message={error.message} />;
-
   // Filter visitors by site if siteId is provided
   const filteredVisitors = siteId 
     ? visitors.filter(visitor => visitor.siteId === siteId)
