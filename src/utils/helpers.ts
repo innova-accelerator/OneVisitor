@@ -1,3 +1,4 @@
+
 /**
  * Converts a string to a URL-friendly slug
  * @param text Text to convert to slug
@@ -140,19 +141,14 @@ export function downloadCSV(data: any[], filename: string = 'export.csv'): void 
     const dateStr = new Date().toISOString().slice(0, 10);
     const fullFilename = `${filename.replace(/\.csv$/, '')}_${dateStr}.csv`;
     
-    if (navigator.msSaveBlob) {
-      // IE 10+
-      navigator.msSaveBlob(blob, fullFilename);
-    } else {
-      // Other browsers
-      const url = URL.createObjectURL(blob);
-      link.href = url;
-      link.setAttribute('download', fullFilename);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }
+    // Use browser-agnostic approach for file download
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.setAttribute('download', fullFilename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   } catch (error) {
     console.error('Error downloading CSV:', error);
   }
