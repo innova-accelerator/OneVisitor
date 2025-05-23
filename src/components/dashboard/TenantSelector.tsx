@@ -66,7 +66,7 @@ export const TenantSelector = () => {
           </div>
           <div className="w-64">
             <Select
-              value={currentTenant || ""}
+              value={currentTenant || "default-tenant"}
               onValueChange={handleTenantChange}
             >
               <SelectTrigger>
