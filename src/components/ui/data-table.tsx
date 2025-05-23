@@ -50,6 +50,16 @@ export function DataTable<TData, TValue>({
   manualPagination = false,
 }: DataTableProps<TData, TValue>) {
   const [searchTerm, setSearchTerm] = React.useState('');
+  
+  // Default pagination state if not provided
+  const [internalPagination, setInternalPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  // Use provided pagination state or internal state
+  const paginationState = pagination || internalPagination;
+  const handlePaginationChange = onPaginationChange || setInternalPagination;
 
   const table = useReactTable({
     data,
@@ -58,10 +68,16 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: !manualPagination ? getPaginationRowModel() : undefined,
     manualPagination: manualPagination,
     pageCount: pageCount,
-    onPaginationChange: onPaginationChange,
+    onPaginationChange: handlePaginationChange,
     state: {
-      pagination: pagination,
+      pagination: paginationState,
       sorting: sorting,
+    },
+    initialState: {
+      pagination: {
+        pageIndex: 0,
+        pageSize: 10,
+      },
     },
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: onSortingChange,
