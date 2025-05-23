@@ -29,10 +29,12 @@ const Users = () => {
     currentUser,
     permissionsUser,
     userPermissions,
+    orgAccess,
     handleAddUser,
     handleEditUser,
     handleDeactivateClick,
     handleManagePermissions,
+    handleOrgAccessChange,
     handleSaveUser,
     handleConfirmDeactivate,
     handleSavePermissions,
@@ -56,6 +58,8 @@ const Users = () => {
           onEdit={handleEditUser}
           onDeactivate={handleDeactivateClick}
           onManagePermissions={handleManagePermissions}
+          orgAccess={orgAccess}
+          onOrgAccessChange={handleOrgAccessChange}
         />
         
         <MockDisclaimer />

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User, UserFormData } from "@/types/user";
 import { SitePermission } from "@/components/users/UserPermissionsModal";
 import { v4 as uuidv4 } from 'uuid';
@@ -63,6 +63,18 @@ export function useUserManagement() {
   const [userPermissions, setUserPermissions] = useState<Record<string, SitePermission[]>>({});
   const [permissionsUser, setPermissionsUser] = useState<User | null>(null);
   
+  // State for organization access
+  const [orgAccess, setOrgAccess] = useState<Record<string, 'Viewer'|'Admin'>>({});
+  
+  // Initialize org access for all users
+  useEffect(() => {
+    const initial = users.reduce((acc, user) => ({ 
+      ...acc, 
+      [user.id]: 'Viewer' 
+    }), {});
+    setOrgAccess(initial);
+  }, [users]);
+  
   // Filter users based on search query
   const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -92,6 +104,12 @@ export function useUserManagement() {
   const handleManagePermissions = (user: User) => {
     setPermissionsUser(user);
     setIsPermissionsModalOpen(true);
+  };
+
+  // Handle organization access change
+  const handleOrgAccessChange = (user: User, level: 'Viewer'|'Admin') => {
+    // TODO: call PUT /api/tenants/:tenantId/users/:userId to update org role
+    setOrgAccess(prev => ({ ...prev, [user.id]: level }));
   };
 
   // Save a new or updated user
@@ -169,10 +187,12 @@ export function useUserManagement() {
     currentUser,
     permissionsUser,
     userPermissions,
+    orgAccess,
     handleAddUser,
     handleEditUser,
     handleDeactivateClick,
     handleManagePermissions,
+    handleOrgAccessChange,
     handleSaveUser,
     handleConfirmDeactivate,
     handleSavePermissions,

@@ -10,7 +10,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Users } from 'lucide-react';
 
 /**
  * UsersTable
@@ -25,13 +24,17 @@ interface UsersTableProps {
   onEdit: (user: User) => void;
   onDeactivate: (user: User) => void;
   onManagePermissions: (user: User) => void;
+  orgAccess: Record<string, 'Viewer'|'Admin'>;
+  onOrgAccessChange: (user: User, level: 'Viewer'|'Admin') => void;
 }
 
 export function UsersTable({ 
   users, 
   onEdit, 
   onDeactivate,
-  onManagePermissions 
+  onManagePermissions,
+  orgAccess,
+  onOrgAccessChange
 }: UsersTableProps) {
   return (
     <Table>
@@ -39,6 +42,7 @@ export function UsersTable({
         <TableRow>
           <TableHead>Name</TableHead>
           <TableHead>Email</TableHead>
+          <TableHead>Org Access</TableHead>
           <TableHead>Roles</TableHead>
           <TableHead>Site Access</TableHead>
           <TableHead>Status</TableHead>
@@ -48,7 +52,7 @@ export function UsersTable({
       <TableBody>
         {users.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={6} className="h-24 text-center">
+            <TableCell colSpan={7} className="h-24 text-center">
               No users found
             </TableCell>
           </TableRow>
@@ -60,6 +64,16 @@ export function UsersTable({
             >
               <TableCell className="font-medium">{user.name}</TableCell>
               <TableCell>{user.email}</TableCell>
+              <TableCell>
+                <select
+                  value={orgAccess[user.id] || 'Viewer'}
+                  onChange={e => onOrgAccessChange(user, e.target.value as 'Viewer'|'Admin')}
+                  className="border rounded px-2 py-1"
+                >
+                  <option value="Viewer">Viewer</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </TableCell>
               <TableCell>{user.roles.join(', ')}</TableCell>
               <TableCell>
                 <Button 

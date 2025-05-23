@@ -9,13 +9,17 @@ interface UserTableContainerProps {
   onEdit: (user: User) => void;
   onDeactivate: (user: User) => void;
   onManagePermissions: (user: User) => void;
+  orgAccess: Record<string, 'Viewer'|'Admin'>;
+  onOrgAccessChange: (user: User, level: 'Viewer'|'Admin') => void;
 }
 
 export function UserTableContainer({ 
   users, 
   onEdit, 
   onDeactivate,
-  onManagePermissions
+  onManagePermissions,
+  orgAccess,
+  onOrgAccessChange
 }: UserTableContainerProps) {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -24,6 +28,8 @@ export function UserTableContainer({
         onEdit={onEdit}
         onDeactivate={onDeactivate}
         onManagePermissions={onManagePermissions}
+        orgAccess={orgAccess}
+        onOrgAccessChange={onOrgAccessChange}
       />
       
       {/* Static Pagination - No functionality */}
