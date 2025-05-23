@@ -46,7 +46,7 @@ const Users = () => {
 
   return (
     <DashboardLayout>
-      <div>
+      <div className="space-y-6">
         <UsersHeader 
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}

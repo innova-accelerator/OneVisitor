@@ -23,7 +23,7 @@ export const initialMockUsers: User[] = [
     id: "3",
     name: "Michael Chen",
     email: "michael.c@example.com",
-    roles: ["Superadmin"],
+    roles: ["Admin"],
     isActive: true,
     createdAt: "2022-11-05T11:45:00Z"
   },
