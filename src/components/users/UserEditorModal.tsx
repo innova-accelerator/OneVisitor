@@ -36,17 +36,17 @@ export function UserEditorModal({
   onSave, 
   onCancel 
 }: UserEditorModalProps) {
-  const [formData, setFormData] = useState<UserFormData>({
+  const [formData, setFormData] = useState<UserFormData & { permissions: 'Viewer' | 'Admin' }>({
     name: "",
     email: "",
     roles: [],
-    isActive: true
+    isActive: true,
+    permissions: "Viewer"
   });
   
   const [errors, setErrors] = useState<{
     name?: string;
     email?: string;
-    roles?: string;
   }>({});
 
   // Reset form when initialData changes
@@ -56,7 +56,8 @@ export function UserEditorModal({
         name: initialData.name,
         email: initialData.email,
         roles: initialData.roles,
-        isActive: initialData.isActive
+        isActive: initialData.isActive,
+        permissions: "Viewer" // Default to Viewer, assuming this is new functionality
       });
     } else {
       // Reset to defaults for new user
@@ -64,7 +65,8 @@ export function UserEditorModal({
         name: "",
         email: "",
         roles: [],
-        isActive: true
+        isActive: true,
+        permissions: "Viewer"
       });
     }
     
@@ -82,19 +84,8 @@ export function UserEditorModal({
     }
   };
 
-  const handleRoleToggle = (role: string) => {
-    setFormData(prev => {
-      const newRoles = prev.roles.includes(role)
-        ? prev.roles.filter(r => r !== role)
-        : [...prev.roles, role];
-        
-      // Clear roles error if any are selected
-      if (newRoles.length > 0 && errors.roles) {
-        setErrors(prev => ({ ...prev, roles: undefined }));
-      }
-        
-      return { ...prev, roles: newRoles };
-    });
+  const handlePermissionsChange = (value: 'Viewer' | 'Admin') => {
+    setFormData(prev => ({ ...prev, permissions: value }));
   };
 
   const handleActiveChange = (checked: boolean) => {
@@ -102,7 +93,7 @@ export function UserEditorModal({
   };
 
   const validateForm = (): boolean => {
-    const newErrors: {name?: string; email?: string; roles?: string} = {};
+    const newErrors: {name?: string; email?: string;} = {};
     
     if (!formData.name.trim()) {
       newErrors.name = "Name is required";
@@ -114,10 +105,6 @@ export function UserEditorModal({
       newErrors.email = "Invalid email format";
     }
     
-    if (formData.roles.length === 0) {
-      newErrors.roles = "At least one role is required";
-    }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -126,7 +113,14 @@ export function UserEditorModal({
     e.preventDefault();
     
     if (validateForm()) {
-      onSave(formData);
+      // TODO: send permissions to API
+      onSave({
+        name: formData.name,
+        email: formData.email,
+        roles: formData.roles,
+        isActive: formData.isActive,
+        permissions: formData.permissions
+      });
     }
   };
 
@@ -175,30 +169,26 @@ export function UserEditorModal({
           {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
         </div>
         
-        {/* Roles Field */}
+        {/* Permissions Field */}
         <div className="space-y-2">
-          <Label className={errors.roles ? "text-destructive" : ""}>
-            Roles
+          <Label htmlFor="permissions">
+            Permissions
           </Label>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {AVAILABLE_ROLES.map((role) => (
-              <div 
-                key={role} 
-                className={`flex items-center justify-between border rounded-md p-2 cursor-pointer ${
-                  formData.roles.includes(role) 
-                    ? 'bg-primary/10 border-primary' 
-                    : 'hover:bg-muted'
-                }`}
-                onClick={() => handleRoleToggle(role)}
-              >
-                <span>{role}</span>
-                {formData.roles.includes(role) && (
-                  <Check className="h-4 w-4 text-primary" />
-                )}
-              </div>
-            ))}
-          </div>
-          {errors.roles && <p className="text-sm text-destructive">{errors.roles}</p>}
+          <Select
+            value={formData.permissions}
+            onValueChange={(value: 'Viewer' | 'Admin') => handlePermissionsChange(value)}
+          >
+            <SelectTrigger id="permissions">
+              <SelectValue placeholder="Select permissions" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Viewer">Viewer</SelectItem>
+              <SelectItem value="Admin">Admin</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-sm text-muted-foreground">
+            Viewers can only view content. Admins can manage users and settings.
+          </p>
         </div>
         
         {/* Active Status Field */}

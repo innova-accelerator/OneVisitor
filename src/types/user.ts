@@ -15,7 +15,9 @@ export interface User {
   createdAt?: string;  // ISO date string
 }
 
-export type UserFormData = Omit<User, 'id' | 'createdAt'>;
+export type UserFormData = Omit<User, 'id' | 'createdAt'> & {
+  permissions?: 'Viewer' | 'Admin';
+};
 
 export const AVAILABLE_ROLES = [
   "Admin", // Renamed from TenantAdmin

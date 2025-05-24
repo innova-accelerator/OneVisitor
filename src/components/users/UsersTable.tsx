@@ -42,8 +42,7 @@ export function UsersTable({
         <TableRow>
           <TableHead>Name</TableHead>
           <TableHead>Email</TableHead>
-          <TableHead>Org Access</TableHead>
-          <TableHead>Roles</TableHead>
+          <TableHead>Permissions</TableHead>
           <TableHead>Site Access</TableHead>
           <TableHead>Status</TableHead>
           <TableHead className="text-right">Actions</TableHead>
@@ -52,17 +51,12 @@ export function UsersTable({
       <TableBody>
         {users.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={7} className="h-24 text-center">
+            <TableCell colSpan={6} className="h-24 text-center">
               No users found
             </TableCell>
           </TableRow>
         ) : (
           users.map((user) => {
-            // Map role names and filter out Superadmin
-            const displayRoles = user.roles
-              .filter(r => r !== 'Superadmin')
-              .map(r => r === 'TenantAdmin' ? 'Admin' : r);
-              
             return (
               <TableRow 
                 key={user.id}
@@ -80,7 +74,6 @@ export function UsersTable({
                     <option value="Admin">Admin</option>
                   </select>
                 </TableCell>
-                <TableCell>{displayRoles.join(', ')}</TableCell>
                 <TableCell>
                   <Button 
                     variant="link" 
