@@ -44,44 +44,45 @@ const Users = () => {
     setIsPermissionsModalOpen
   } = useUserManagement();
 
-  return (
-      <div className="space-y-6">
-        <UsersHeader 
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          onAddUser={handleAddUser}
-        />
-        
-        <UserTableContainer 
-          users={users}
-          onEdit={handleEditUser}
-          onDeactivate={handleDeactivateClick}
-          onManagePermissions={handleManagePermissions}
-          orgAccess={orgAccess}
-          onOrgAccessChange={handleOrgAccessChange}
-        />
-        
-        <MockDisclaimer />
-      </div>
-      
-      <UserModals
-        isEditorOpen={isEditorOpen}
-        isDeactivateDialogOpen={isDeactivateDialogOpen}
-        isPermissionsModalOpen={isPermissionsModalOpen}
-        currentUser={currentUser}
-        permissionsUser={permissionsUser}
-        userPermissions={userPermissions}
-        onSaveUser={handleSaveUser}
-        onConfirmDeactivate={handleConfirmDeactivate}
-        onSavePermissions={handleSavePermissions}
-        onCloseEditor={() => setIsEditorOpen(false)}
-        onCloseDeactivateDialog={() => setIsDeactivateDialogOpen(false)}
-        onClosePermissionsModal={() => {
-          setIsPermissionsModalOpen(false);
-          setPermissionsUser(null);
-        }}
+return (
+  <>
+    <div className="space-y-6">
+      <UsersHeader 
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onAddUser={handleAddUser}
       />
-  );
-};
+      
+      <UserTableContainer 
+        users={users}
+        onEdit={handleEditUser}
+        onDeactivate={handleDeactivateClick}
+        onManagePermissions={handleManagePermissions}
+        orgAccess={orgAccess}
+        onOrgAccessChange={handleOrgAccessChange}
+      />
+      
+      <MockDisclaimer />
+    </div>
+    
+    <UserModals
+      isEditorOpen={isEditorOpen}
+      isDeactivateDialogOpen={isDeactivateDialogOpen}
+      isPermissionsModalOpen={isPermissionsModalOpen}
+      currentUser={currentUser}
+      permissionsUser={permissionsUser}
+      userPermissions={userPermissions}
+      onSaveUser={handleSaveUser}
+      onConfirmDeactivate={handleConfirmDeactivate}
+      onSavePermissions={handleSavePermissions}
+      onCloseEditor={() => setIsEditorOpen(false)}
+      onCloseDeactivateDialog={() => setIsDeactivateDialogOpen(false)}
+      onClosePermissionsModal={() => {
+        setIsPermissionsModalOpen(false);
+        setPermissionsUser(null);
+      }}
+    />
+  </>
+);
 
 export default Users;
