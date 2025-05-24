@@ -2,6 +2,7 @@
 import { KioskSite } from "@/models/kiosk";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import CheckIn from "@/pages/CheckIn";
 
 interface PreviewSiteDialogProps {
   site: KioskSite | null;
@@ -20,7 +21,7 @@ export const PreviewSiteDialog = ({
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[900px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Site Preview: {site.name}</DialogTitle>
           <DialogDescription>
@@ -29,54 +30,20 @@ export const PreviewSiteDialog = ({
             </strong>
           </DialogDescription>
         </DialogHeader>
-        <div className="mt-4">
+        <div className="mt-4 flex justify-center">
           <div 
-            className="border rounded-md overflow-hidden"
-            style={{height: "600px"}}
+            className="border rounded-md overflow-hidden bg-white"
+            style={{
+              width: "375px",
+              height: "600px",
+              transform: "scale(0.85)",
+              transformOrigin: "top center"
+            }}
           >
-            <div 
-              className="w-full p-4"
-              style={{
-                backgroundColor: site.branding.primaryColor,
-                color: "white"
-              }}
-            >
-              <div className="flex items-center space-x-4">
-                {site.branding.logo && (
-                  <img 
-                    src={site.branding.logo}
-                    alt={site.name}
-                    className="h-8"
-                  />
-                )}
-                <h2 className="text-xl font-semibold">
-                  {site.name} Check-in
-                </h2>
-              </div>
-            </div>
-            <div className="p-6 bg-white">
-              <div className="prose">
-                <h3>Welcome</h3>
-                <p>{site.welcomeMessage || "Welcome to our check-in system."}</p>
-                
-                <div className="mt-8">
-                  <h4>I am here for:</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-                    {site.visitorTypes.map(type => (
-                      <div 
-                        key={type.id}
-                        className="p-4 border rounded-lg text-center cursor-pointer hover:bg-gray-50"
-                        style={{
-                          borderColor: site.branding.secondaryColor
-                        }}
-                      >
-                        <span className="text-lg font-medium">{type.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <CheckIn 
+              siteConfig={site}
+              isPreview={true}
+            />
           </div>
         </div>
         <DialogFooter>

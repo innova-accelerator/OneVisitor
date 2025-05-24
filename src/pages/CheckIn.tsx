@@ -12,8 +12,14 @@ import { VisitorForm } from "@/components/check-in/VisitorForm";
 import { ReviewConfirm } from "@/components/check-in/ReviewConfirm";
 import { ThankYouScreen } from "@/components/check-in/ThankYouScreen";
 import { ImageUploader } from "@/components/kiosk/ImageUploader";
+import { KioskSite } from "@/models/kiosk";
 
-const CheckIn = () => {
+interface CheckInProps {
+  siteConfig?: KioskSite;
+  isPreview?: boolean;
+}
+
+const CheckIn = ({ siteConfig, isPreview = false }: CheckInProps) => {
   const { sitePath } = useParams<{ sitePath?: string }>();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -32,6 +38,15 @@ const CheckIn = () => {
   const { toast } = useToast();
   const { tenantBranding } = useTenantBranding(sitePath);
 
+  // Use siteConfig if in preview mode, otherwise use tenantBranding
+  const currentBranding = isPreview && siteConfig ? {
+    name: siteConfig.name,
+    logo: siteConfig.branding.logo,
+    primaryColor: siteConfig.branding.primaryColor,
+    secondaryColor: siteConfig.branding.secondaryColor,
+    font: undefined
+  } : tenantBranding;
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -49,36 +64,40 @@ const CheckIn = () => {
   };
 
   const handleUnlock = () => {
-    toast({
-      title: "Door Unlocked",
-      description: "Access granted. Door will remain unlocked for 30 seconds.",
-    });
+    if (!isPreview) {
+      toast({
+        title: "Door Unlocked",
+        description: "Access granted. Door will remain unlocked for 30 seconds.",
+      });
+    }
   };
 
   const handleSubmit = () => {
-    // Create FormData for submission
-    const submissionData = new FormData();
-    for (const key in formData) {
-      submissionData.append(key, String(formData[key as keyof typeof formData]));
-    }
-    
-    // Add photo if present
-    if (photo) {
-      submissionData.append('photo', photo);
-    }
+    if (!isPreview) {
+      // Create FormData for submission
+      const submissionData = new FormData();
+      for (const key in formData) {
+        submissionData.append(key, String(formData[key as keyof typeof formData]));
+      }
+      
+      // Add photo if present
+      if (photo) {
+        submissionData.append('photo', photo);
+      }
 
-    // TODO: switch to multipart/form-data in backend
-    // Make API call with FormData
-    if (sitePath) {
-      // This is a placeholder for the actual API call
-      console.log('Would submit to:', `/api/sites/${sitePath}/visitors`);
-      console.log('Form data:', Object.fromEntries(submissionData.entries()));
+      // TODO: switch to multipart/form-data in backend
+      // Make API call with FormData
+      if (sitePath) {
+        // This is a placeholder for the actual API call
+        console.log('Would submit to:', `/api/sites/${sitePath}/visitors`);
+        console.log('Form data:', Object.fromEntries(submissionData.entries()));
+      }
+      
+      toast({
+        title: "Check-in Complete!",
+        description: "Welcome badge has been printed. Please wait for host notification.",
+      });
     }
-    
-    toast({
-      title: "Check-in Complete!",
-      description: "Welcome badge has been printed. Please wait for host notification.",
-    });
     setStep(4);
   };
 
@@ -99,13 +118,19 @@ const CheckIn = () => {
     setStep(1);
   };
 
-  // Mock visitor types
-  const visitorTypes = [
-    { id: "visitor", name: "Visitor", icon: "User", color: "#3498db" },
-    { id: "contractor", name: "Contractor", icon: "Briefcase", color: "#e74c3c" },
-    { id: "delivery", name: "Delivery", icon: "Package", color: "#27ae60" },
-    { id: "interview", name: "Interview", icon: "Calendar", color: "#f39c12" }
-  ];
+  // Use visitor types from siteConfig if in preview mode, otherwise use mock data
+  const visitorTypes = isPreview && siteConfig ? 
+    siteConfig.visitorTypes.map(vt => ({
+      id: vt.id,
+      name: vt.name,
+      icon: vt.icon || "User",
+      color: "#3498db"
+    })) : [
+      { id: "visitor", name: "Visitor", icon: "User", color: "#3498db" },
+      { id: "contractor", name: "Contractor", icon: "Briefcase", color: "#e74c3c" },
+      { id: "delivery", name: "Delivery", icon: "Package", color: "#27ae60" },
+      { id: "interview", name: "Interview", icon: "Calendar", color: "#f39c12" }
+    ];
 
   const renderCurrentStep = () => {
     switch(step) {
@@ -126,9 +151,11 @@ const CheckIn = () => {
               formData={formData} 
               onInputChange={handleInputChange} 
             />
-            <div className="mt-6">
-              <ImageUploader photo={photo} onPhotoChange={setPhoto} />
-            </div>
+            {!isPreview && (
+              <div className="mt-6">
+                <ImageUploader photo={photo} onPhotoChange={setPhoto} />
+              </div>
+            )}
           </>
         );
       case 3:
@@ -146,7 +173,7 @@ const CheckIn = () => {
             formData={formData} 
             onUnlock={handleUnlock} 
             onDone={resetForm}
-            tenantBranding={tenantBranding}
+            tenantBranding={currentBranding}
             photo={photo}
           />
         );
@@ -158,20 +185,20 @@ const CheckIn = () => {
   return (
     <div 
       className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4"
-      style={tenantBranding ? {
-        background: `linear-gradient(to bottom right, ${tenantBranding.primaryColor}10, ${tenantBranding.secondaryColor}10)`,
-        fontFamily: tenantBranding.font || 'inherit'
+      style={currentBranding ? {
+        background: `linear-gradient(to bottom right, ${currentBranding.primaryColor}10, ${currentBranding.secondaryColor || currentBranding.primaryColor}10)`,
+        fontFamily: currentBranding.font || 'inherit'
       } : {}}
     >
       <Card className="w-full max-w-md border-0 shadow-lg">
         <CardContent className="p-8">
           {/* Logo & Header */}
-          <CheckInHeader tenantBranding={tenantBranding} />
+          <CheckInHeader tenantBranding={currentBranding} />
           
           {/* Progress and Content */}
           <CheckInProgress 
             step={step}
-            tenantBranding={tenantBranding}
+            tenantBranding={currentBranding}
             onPrevious={handlePreviousStep}
             onNext={step < 3 ? handleNextStep : handleSubmit}
             isNextDisabled={step === 2 && (!formData.name || !formData.email || !formData.host)}
