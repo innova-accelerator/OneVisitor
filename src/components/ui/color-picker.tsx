@@ -76,11 +76,11 @@ export function ColorPicker({
             ))}
           </div>
           
-          <input
+          <Input
             type="color"
             value={value}
             onChange={handleColorChange}
-            className="w-full h-8 mt-2 cursor-pointer p-0 border rounded"
+            className="w-full h-8 mt-2 cursor-pointer p-0"
           />
         </div>
       )}
