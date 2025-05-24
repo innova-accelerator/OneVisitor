@@ -1,16 +1,32 @@
 
 import React from 'react';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Users as UsersIcon, Plus } from "lucide-react";
+import { UsersIcon, Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface UsersHeaderProps {
   searchQuery: string;
-  onSearchChange: (value: string) => void;
-  onAddUser: () => void;
+  onSearchChange: (query: string) => void;
+  onAddUser?: () => void;
+  isAddDisabled?: boolean;
+  addDisabledTooltip?: string;
 }
 
-export function UsersHeader({ searchQuery, onSearchChange, onAddUser }: UsersHeaderProps) {
+export function UsersHeader({ 
+  searchQuery, 
+  onSearchChange, 
+  onAddUser,
+  isAddDisabled,
+  addDisabledTooltip
+}: UsersHeaderProps) {
+  const addUserButton = (
+    <Button onClick={onAddUser} disabled={isAddDisabled || !onAddUser}>
+      <Plus className="h-4 w-4 mr-2" />
+      Add User
+    </Button>
+  );
+
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
       <div className="flex items-center gap-2">
@@ -28,10 +44,20 @@ export function UsersHeader({ searchQuery, onSearchChange, onAddUser }: UsersHea
           />
         </div>
         
-        <Button onClick={onAddUser}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add User
-        </Button>
+        {addDisabledTooltip && isAddDisabled ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                {addUserButton}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{addDisabledTooltip}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : (
+          addUserButton
+        )}
       </div>
     </div>
   );

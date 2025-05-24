@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { TenantContext } from "@/App";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Link } from "react-router-dom";
 
 export const SettingsTabs = () => {
   const { tenantBranding, setTenantBranding } = useContext(TenantContext);
@@ -57,6 +58,11 @@ export const SettingsTabs = () => {
         <TabsTrigger value="check-in-form">Check-In Form</TabsTrigger>
         <TabsTrigger value="notifications">Notifications</TabsTrigger>
         <TabsTrigger value="security">Security & Access</TabsTrigger>
+        <TabsTrigger asChild>
+          <Link to="/dashboard/settings/organization" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+            Organization Administration
+          </Link>
+        </TabsTrigger>
       </TabsList>
       
       <TabsContent value="branding">

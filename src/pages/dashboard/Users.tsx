@@ -6,6 +6,8 @@ import { UsersHeader } from "@/components/users/UsersHeader";
 import { UserTableContainer } from "@/components/users/UserTableContainer";
 import { UserModals } from "@/components/users/UserModals";
 import { MockDisclaimer } from "@/components/users/MockDisclaimer";
+import { useResourceLimits } from "@/hooks/useResourceLimits";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 /**
  * UsersPage
@@ -44,46 +46,61 @@ const Users = () => {
     setIsPermissionsModalOpen
   } = useUserManagement();
 
-return (
-  <>
-    <div className="space-y-6">
-      <UsersHeader 
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        onAddUser={handleAddUser}
-      />
+  const { isAtLimit } = useResourceLimits();
+  const isAtUserLimit = isAtLimit.users(users.length);
+
+  const wrappedHandleAddUser = () => {
+    if (!isAtUserLimit) {
+      handleAddUser();
+    }
+  };
+
+  return (
+    <>
+      <div className="space-y-6">
+        <UsersHeader 
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onAddUser={
+            isAtUserLimit ? 
+            undefined :  // This will disable the button in UsersHeader
+            wrappedHandleAddUser
+          }
+          isAddDisabled={isAtUserLimit}
+          addDisabledTooltip={isAtUserLimit ? "User limit reached" : undefined}
+        />
+        
+        <UserTableContainer 
+          users={users}
+          onEdit={handleEditUser}
+          onDeactivate={handleDeactivateClick}
+          onManagePermissions={handleManagePermissions}
+          orgAccess={orgAccess}
+          onOrgAccessChange={handleOrgAccessChange}
+        />
+        
+        <MockDisclaimer />
+      </div>
       
-      <UserTableContainer 
-        users={users}
-        onEdit={handleEditUser}
-        onDeactivate={handleDeactivateClick}
-        onManagePermissions={handleManagePermissions}
-        orgAccess={orgAccess}
-        onOrgAccessChange={handleOrgAccessChange}
+      <UserModals
+        isEditorOpen={isEditorOpen}
+        isDeactivateDialogOpen={isDeactivateDialogOpen}
+        isPermissionsModalOpen={isPermissionsModalOpen}
+        currentUser={currentUser}
+        permissionsUser={permissionsUser}
+        userPermissions={userPermissions}
+        onSaveUser={handleSaveUser}
+        onConfirmDeactivate={handleConfirmDeactivate}
+        onSavePermissions={handleSavePermissions}
+        onCloseEditor={() => setIsEditorOpen(false)}
+        onCloseDeactivateDialog={() => setIsDeactivateDialogOpen(false)}
+        onClosePermissionsModal={() => {
+          setIsPermissionsModalOpen(false);
+          setPermissionsUser(null);
+        }}
       />
-      
-      <MockDisclaimer />
-    </div>
-    
-    <UserModals
-      isEditorOpen={isEditorOpen}
-      isDeactivateDialogOpen={isDeactivateDialogOpen}
-      isPermissionsModalOpen={isPermissionsModalOpen}
-      currentUser={currentUser}
-      permissionsUser={permissionsUser}
-      userPermissions={userPermissions}
-      onSaveUser={handleSaveUser}
-      onConfirmDeactivate={handleConfirmDeactivate}
-      onSavePermissions={handleSavePermissions}
-      onCloseEditor={() => setIsEditorOpen(false)}
-      onCloseDeactivateDialog={() => setIsDeactivateDialogOpen(false)}
-      onClosePermissionsModal={() => {
-        setIsPermissionsModalOpen(false);
-        setPermissionsUser(null);
-      }}
-    />
-  </>
-);
+    </>
+  );
 };
 
 export default Users;
