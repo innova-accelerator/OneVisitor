@@ -35,7 +35,6 @@ export function Header() {
           <Link to="/dashboard/visitors" className="text-white hover:text-gray-100">Visitors</Link>
           <Link to="/dashboard/settings" className="text-white hover:text-gray-100">Settings</Link>
           <Link to="/dashboard/users" className="text-white hover:text-gray-100">Users</Link>
-          <Link to="/help" className="text-white hover:text-gray-100">Help</Link>
         </nav>
         <button
           onClick={handleLogout}

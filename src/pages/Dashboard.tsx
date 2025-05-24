@@ -29,6 +29,7 @@ const Dashboard = () => {
         <Route path="/kiosks" element={<KioskCustomization />} />
         <Route path="/settings" element={<SettingsTabs />} />
         <Route path="/settings/organization" element={<SettingsTabs />} />
+        <Route path="/settings/integrations" element={<SettingsTabs />} />
         <Route path="/users" element={<Users />} />
       </Routes>
     </DashboardLayout>

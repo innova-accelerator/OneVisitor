@@ -1,14 +1,42 @@
 
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FileUpload } from "@/components/ui/file-upload";
 
 const OrganizationSettings = () => {
+  const [orgName, setOrgName] = useState("Acme Corporation");
+  const [primaryContact, setPrimaryContact] = useState("admin@acmecorp.com");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>("https://placehold.co/100x50?text=ACME");
+
+  const handleFileSelect = (file: File) => {
+    setLogoFile(file);
+    // Generate a preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setLogoUrl(previewUrl);
+    // TODO: In a real implementation, you would upload this file to your server/storage
+  };
+
+  const handleClearLogo = () => {
+    setLogoFile(null);
+    if (logoUrl && logoUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(logoUrl);
+    }
+    setLogoUrl(null);
+  };
+
+  const handleSubmit = () => {
+    // TODO: Save organization settings
+    console.log("Saving organization settings:", { orgName, primaryContact, logoFile });
+  };
+
   return (
     <Card className="bg-white/80 backdrop-blur-sm border-0">
       <CardHeader>
-        <CardTitle>Organization Administration</CardTitle>
+        <CardTitle>Organization Settings</CardTitle>
         <CardDescription>
           Manage organization settings and subscription
         </CardDescription>
@@ -16,10 +44,26 @@ const OrganizationSettings = () => {
       <CardContent className="space-y-6">
         <div className="space-y-4">
           <div>
+            <Label htmlFor="logo-upload">Organization Logo</Label>
+            <div className="mt-2">
+              <FileUpload 
+                onFileSelect={handleFileSelect}
+                onClear={handleClearLogo}
+                accept="image/*"
+                maxSizeMB={2}
+                buttonText="Upload Logo"
+                dropzoneText="or drag and drop an image"
+                previewUrl={logoUrl}
+              />
+            </div>
+          </div>
+          
+          <div>
             <Label htmlFor="org-name">Organization Name</Label>
             <Input 
               id="org-name" 
-              defaultValue="Acme Corporation" 
+              value={orgName}
+              onChange={(e) => setOrgName(e.target.value)}
             />
           </div>
           
@@ -28,7 +72,8 @@ const OrganizationSettings = () => {
             <Input 
               id="primary-contact" 
               type="email"
-              defaultValue="admin@acmecorp.com" 
+              value={primaryContact}
+              onChange={(e) => setPrimaryContact(e.target.value)}
             />
           </div>
           
@@ -62,7 +107,7 @@ const OrganizationSettings = () => {
             </div>
           </div>
           
-          <Button>Save Organization Settings</Button>
+          <Button onClick={handleSubmit}>Save Organization Settings</Button>
         </div>
       </CardContent>
     </Card>
