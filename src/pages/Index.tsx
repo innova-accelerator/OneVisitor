@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -93,18 +94,36 @@ const Index = () => {
               Cloud-native platform for managing guest arrivals, pre-registration, contactless door access, 
               digital waivers, and emergency mustering with enterprise-grade security and tenant isolation.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/dashboard">
-                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                  Admin Dashboard
-                </Button>
-              </Link>
-              <Link to="/checkin">
-                <Button size="lg" variant="outline">
-                  Visitor Check-In
-                </Button>
-              </Link>
-            </div>
+            <button
+              className="mt-8 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+              onClick={() => window.location.href = '/request-demo'}
+            >
+              Request a Demo
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* New Section 1 */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold">Welcome guests while keeping people, property, and ideas safe</h2>
+            <p className="mt-4 text-gray-600 max-w-4xl mx-auto">
+              Make visitors feel at ease with an elegantly simple check-in experience. Know exactly who's visiting, when, and why with instant document verification. Save time alerting hosts and printing badges with automated workflows.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* New Section 2 */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold">Visitor management for multi-tenant property owners</h2>
+            <p className="mt-4 text-gray-600 max-w-4xl mx-auto">
+              Rely on the only intuitive visitor management system designed for property owners to keep their buildings secure and exceed tenant expectations. Get accurate data around property utilization and occupancy to drive smarter decisions.
+            </p>
           </div>
         </div>
       </section>
@@ -175,6 +194,9 @@ const Index = () => {
           <p className="text-gray-400">
             Enterprise-grade visitor management for the modern workplace
           </p>
+          <div className="mt-16 py-4 text-center text-sm text-gray-500">
+            <span>© 2025 OneCompany</span>
+          </div>
         </div>
       </footer>
     </div>
