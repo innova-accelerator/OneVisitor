@@ -26,15 +26,29 @@ interface ReviewConfirmProps {
     color: string;
   }>;
   onEdit: (step: number) => void;
+  photo: File | null;
 }
 
-export const ReviewConfirm = ({ formData, visitorTypes, onEdit }: ReviewConfirmProps) => {
+export const ReviewConfirm = ({ formData, visitorTypes, onEdit, photo }: ReviewConfirmProps) => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-4">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Review & Confirm</h2>
         <p className="text-gray-600">Please verify your information</p>
       </div>
+      
+      {/* Photo preview if available */}
+      {photo && (
+        <div className="flex justify-center mb-4">
+          <div className="w-32 h-32 overflow-hidden rounded-md">
+            <img
+              src={URL.createObjectURL(photo)}
+              alt="Visitor photo"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+      )}
       
       <div className="space-y-4">
         <Card className="overflow-hidden">
@@ -111,7 +125,7 @@ export const ReviewConfirm = ({ formData, visitorTypes, onEdit }: ReviewConfirmP
             className="px-3 py-1 text-sm flex items-center gap-1 bg-green-50 text-green-700 border-green-200"
           >
             <Camera className="h-3 w-3" />
-            Photo captured
+            {photo ? "Photo captured" : "No photo captured"}
           </Badge>
         </div>
         

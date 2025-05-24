@@ -11,6 +11,7 @@ import { VisitorTypeSelection } from "@/components/check-in/VisitorTypeSelection
 import { VisitorForm } from "@/components/check-in/VisitorForm";
 import { ReviewConfirm } from "@/components/check-in/ReviewConfirm";
 import { ThankYouScreen } from "@/components/check-in/ThankYouScreen";
+import { ImageUploader } from "@/components/kiosk/ImageUploader";
 
 const CheckIn = () => {
   const { sitePath } = useParams<{ sitePath?: string }>();
@@ -27,6 +28,7 @@ const CheckIn = () => {
     photo: false,
     visitorType: ""
   });
+  const [photo, setPhoto] = useState<File | null>(null);
   const { toast } = useToast();
   const { tenantBranding } = useTenantBranding(sitePath);
 
@@ -54,6 +56,25 @@ const CheckIn = () => {
   };
 
   const handleSubmit = () => {
+    // Create FormData for submission
+    const submissionData = new FormData();
+    for (const key in formData) {
+      submissionData.append(key, String(formData[key as keyof typeof formData]));
+    }
+    
+    // Add photo if present
+    if (photo) {
+      submissionData.append('photo', photo);
+    }
+
+    // TODO: switch to multipart/form-data in backend
+    // Make API call with FormData
+    if (sitePath) {
+      // This is a placeholder for the actual API call
+      console.log('Would submit to:', `/api/sites/${sitePath}/visitors`);
+      console.log('Form data:', Object.fromEntries(submissionData.entries()));
+    }
+    
     toast({
       title: "Check-in Complete!",
       description: "Welcome badge has been printed. Please wait for host notification.",
@@ -74,6 +95,7 @@ const CheckIn = () => {
       photo: false,
       visitorType: ""
     });
+    setPhoto(null);
     setStep(1);
   };
 
@@ -99,17 +121,23 @@ const CheckIn = () => {
         );
       case 2:
         return (
-          <VisitorForm 
-            formData={formData} 
-            onInputChange={handleInputChange} 
-          />
+          <>
+            <VisitorForm 
+              formData={formData} 
+              onInputChange={handleInputChange} 
+            />
+            <div className="mt-6">
+              <ImageUploader photo={photo} onPhotoChange={setPhoto} />
+            </div>
+          </>
         );
       case 3:
         return (
           <ReviewConfirm 
             formData={formData} 
             visitorTypes={visitorTypes}
-            onEdit={setStep} 
+            onEdit={setStep}
+            photo={photo}
           />
         );
       case 4:
@@ -119,6 +147,7 @@ const CheckIn = () => {
             onUnlock={handleUnlock} 
             onDone={resetForm}
             tenantBranding={tenantBranding}
+            photo={photo}
           />
         );
       default:

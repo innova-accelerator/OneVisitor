@@ -23,9 +23,10 @@ interface ThankYouScreenProps {
   onUnlock: () => void;
   onDone: () => void;
   tenantBranding: TenantBranding | null;
+  photo?: File | null;
 }
 
-export const ThankYouScreen = ({ formData, onUnlock, onDone, tenantBranding }: ThankYouScreenProps) => {
+export const ThankYouScreen = ({ formData, onUnlock, onDone, tenantBranding, photo }: ThankYouScreenProps) => {
   return (
     <div className="space-y-8 text-center">
       <div className="flex justify-center">
@@ -44,6 +45,17 @@ export const ThankYouScreen = ({ formData, onUnlock, onDone, tenantBranding }: T
       <Card className="bg-green-50 border-green-200">
         <CardContent className="p-4">
           <div className="space-y-2 text-left">
+            {photo && (
+              <div className="flex justify-center mb-3">
+                <div className="w-16 h-16 rounded-full overflow-hidden">
+                  <img 
+                    src={URL.createObjectURL(photo)} 
+                    alt="Visitor" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
             <p className="text-sm"><strong>Name:</strong> {formData.name}</p>
             <p className="text-sm"><strong>Host:</strong> {formData.host}</p>
             <p className="text-sm"><strong>Check-in Time:</strong> {new Date().toLocaleTimeString()}</p>
