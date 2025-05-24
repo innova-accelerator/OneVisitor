@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React, { useState } from "react";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
+import Admin from "./pages/admin/Admin";
 import CheckIn from "./pages/CheckIn";
 import NotFound from "./pages/NotFound";
 import TenantAdmin from "./pages/TenantAdmin";
@@ -72,6 +73,7 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/dashboard/*" element={<Dashboard />} />
               <Route path="/checkin/:sitePath?" element={<CheckIn />} />
+              <Route path="/admin/*" element={<Admin />} />
               <Route path="/admin/tenants" element={<TenantAdmin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
