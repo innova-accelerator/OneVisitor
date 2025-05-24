@@ -93,10 +93,16 @@ export const SitesTable = ({
                 <TableRow key={site.id}>
                   <TableCell className="font-medium">
                     <div className="flex items-center">
-                      <div
-                        className="w-6 h-6 rounded flex-shrink-0 mr-3"
-                        style={{ backgroundColor: site.branding?.primaryColor || '#2563eb' }}
-                      ></div>
+                      <div className="flex mr-3">
+                        <span
+                          className="inline-block w-3 h-6 rounded-l border"
+                          style={{ backgroundColor: site.branding?.primaryColor || '#2563eb' }}
+                        />
+                        <span
+                          className="inline-block w-3 h-6 rounded-r border"
+                          style={{ backgroundColor: site.branding?.secondaryColor || '#1d4ed8' }}
+                        />
+                      </div>
                       <span>{site.name}</span>
                     </div>
                   </TableCell>

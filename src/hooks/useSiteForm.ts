@@ -71,6 +71,26 @@ export const useSiteForm = (initialSite: KioskSite | null) => {
     }));
   };
 
+  const setPrimaryColor = (color: string) => {
+    setSiteData(prev => ({
+      ...prev,
+      branding: {
+        ...prev.branding,
+        primaryColor: color
+      }
+    }));
+  };
+
+  const setSecondaryColor = (color: string) => {
+    setSiteData(prev => ({
+      ...prev,
+      branding: {
+        ...prev.branding,
+        secondaryColor: color
+      }
+    }));
+  };
+
   const updateVisitorTypes = (visitorTypes: any[]) => {
     setSiteData(prev => ({
       ...prev,
@@ -95,6 +115,8 @@ export const useSiteForm = (initialSite: KioskSite | null) => {
     handleChange,
     handleBrandingChange,
     handleUrlChange,
+    setPrimaryColor,
+    setSecondaryColor,
     updateVisitorTypes,
     updateFormFields,
     createSiteId

@@ -4,12 +4,15 @@ import { KioskSite } from "@/models/kiosk";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ColorPicker } from "@/components/ui/color-picker";
 
 interface BrandingTabContentProps {
   site: KioskSite;
   handleChange: (field: string, value: any) => void;
   handleBrandingChange: (field: string, value: any) => void;
   handleUrlChange: (value: string) => void;
+  setPrimaryColor?: (color: string) => void;
+  setSecondaryColor?: (color: string) => void;
 }
 
 export const BrandingTabContent = ({
@@ -17,6 +20,8 @@ export const BrandingTabContent = ({
   handleChange,
   handleBrandingChange,
   handleUrlChange,
+  setPrimaryColor,
+  setSecondaryColor,
 }: BrandingTabContentProps) => {
   // Helper function to handle regular input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -92,37 +97,19 @@ export const BrandingTabContent = ({
         </div>
 
         <div>
-          <Label htmlFor="branding.primaryColor">Primary Color</Label>
-          <div className="flex mt-1">
-            <Input
-              id="branding.primaryColor"
-              name="branding.primaryColor"
-              value={site.branding.primaryColor}
-              onChange={handleInputChange}
-              className="flex-1"
-            />
-            <div
-              className="w-10 h-10 ml-2 border rounded"
-              style={{ backgroundColor: site.branding.primaryColor }}
-            ></div>
-          </div>
+          <ColorPicker
+            label="Primary Color"
+            value={site.branding.primaryColor}
+            onChange={setPrimaryColor || ((color) => handleBrandingChange('primaryColor', color))}
+          />
         </div>
 
         <div>
-          <Label htmlFor="branding.secondaryColor">Secondary Color</Label>
-          <div className="flex mt-1">
-            <Input
-              id="branding.secondaryColor"
-              name="branding.secondaryColor"
-              value={site.branding.secondaryColor}
-              onChange={handleInputChange}
-              className="flex-1"
-            />
-            <div
-              className="w-10 h-10 ml-2 border rounded"
-              style={{ backgroundColor: site.branding.secondaryColor }}
-            ></div>
-          </div>
+          <ColorPicker
+            label="Secondary Color"
+            value={site.branding.secondaryColor}
+            onChange={setSecondaryColor || ((color) => handleBrandingChange('secondaryColor', color))}
+          />
         </div>
 
         <div className="md:col-span-2">

@@ -124,12 +124,12 @@ const CheckIn = ({ siteConfig, isPreview = false }: CheckInProps) => {
       id: vt.id,
       name: vt.name,
       icon: vt.icon || "User",
-      color: "#3498db"
+      color: currentBranding?.primaryColor || "#3498db"
     })) : [
-      { id: "visitor", name: "Visitor", icon: "User", color: "#3498db" },
-      { id: "contractor", name: "Contractor", icon: "Briefcase", color: "#e74c3c" },
-      { id: "delivery", name: "Delivery", icon: "Package", color: "#27ae60" },
-      { id: "interview", name: "Interview", icon: "Calendar", color: "#f39c12" }
+      { id: "visitor", name: "Visitor", icon: "User", color: currentBranding?.primaryColor || "#3498db" },
+      { id: "contractor", name: "Contractor", icon: "Briefcase", color: currentBranding?.primaryColor || "#e74c3c" },
+      { id: "delivery", name: "Delivery", icon: "Package", color: currentBranding?.primaryColor || "#27ae60" },
+      { id: "interview", name: "Interview", icon: "Calendar", color: currentBranding?.primaryColor || "#f39c12" }
     ];
 
   const renderCurrentStep = () => {
@@ -182,13 +182,16 @@ const CheckIn = ({ siteConfig, isPreview = false }: CheckInProps) => {
     }
   };
 
+  // Create gradient background using site colors
+  const backgroundStyle = currentBranding ? {
+    background: `linear-gradient(to bottom right, ${currentBranding.primaryColor}10, ${currentBranding.secondaryColor || currentBranding.primaryColor}20)`,
+    fontFamily: currentBranding.font || 'inherit'
+  } : {};
+
   return (
     <div 
       className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4"
-      style={currentBranding ? {
-        background: `linear-gradient(to bottom right, ${currentBranding.primaryColor}10, ${currentBranding.secondaryColor || currentBranding.primaryColor}10)`,
-        fontFamily: currentBranding.font || 'inherit'
-      } : {}}
+      style={backgroundStyle}
     >
       <Card className="w-full max-w-md border-0 shadow-lg">
         <CardContent className="p-8">
