@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+
 import { useUserManagement } from "@/hooks/useUserManagement";
+import { UsersHeader } from "@/components/users/UsersHeader";
 import { UserTableContainer } from "@/components/users/UserTableContainer";
 import { UserModals } from "@/components/users/UserModals";
 import { MockDisclaimer } from "@/components/users/MockDisclaimer";
@@ -44,9 +45,12 @@ const Users = () => {
   } = useUserManagement();
 
   return (
-    <DashboardLayout>
       <div className="space-y-6">
-
+        <UsersHeader 
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onAddUser={handleAddUser}
+        />
         
         <UserTableContainer 
           users={users}
