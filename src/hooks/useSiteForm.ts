@@ -57,6 +57,14 @@ export const useSiteForm = (initialSite: KioskSite | null) => {
     }));
   };
 
+  const setPrimaryColor = (color: string) => {
+    handleBrandingChange('primaryColor', color);
+  };
+
+  const setSecondaryColor = (color: string) => {
+    handleBrandingChange('secondaryColor', color);
+  };
+
   const handleUrlChange = (value: string) => {
     // Convert to URL-friendly slug
     const urlSlug = value
@@ -97,6 +105,8 @@ export const useSiteForm = (initialSite: KioskSite | null) => {
     handleUrlChange,
     updateVisitorTypes,
     updateFormFields,
-    createSiteId
+    createSiteId,
+    setPrimaryColor,
+    setSecondaryColor
   };
 };
