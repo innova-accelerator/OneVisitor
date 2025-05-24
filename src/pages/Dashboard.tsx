@@ -8,7 +8,6 @@ import { GlobalVisitorsDashboard } from "@/components/dashboard/GlobalVisitorsDa
 import { useContext } from "react";
 import { TenantContext } from "@/App";
 import Users from "./dashboard/Users";
-import OrganizationSettings from "./dashboard/settings/OrganizationSettings";
 
 const Dashboard = () => {
   const { currentTenant } = useContext(TenantContext);
@@ -29,7 +28,7 @@ const Dashboard = () => {
         <Route path="/visitors" element={<GlobalVisitorsDashboard />} />
         <Route path="/kiosks" element={<KioskCustomization />} />
         <Route path="/settings" element={<SettingsTabs />} />
-        <Route path="/settings/organization" element={<OrganizationSettings />} />
+        <Route path="/settings/organization" element={<SettingsTabs />} />
         <Route path="/users" element={<Users />} />
       </Routes>
     </DashboardLayout>
