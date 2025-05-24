@@ -27,7 +27,7 @@ export const mockTenants: MockTenant[] = [
     primaryColor: "#2563eb",
     status: "active",
     userCount: 12,
-    subscriptionPlan: "Professional Plan",
+    subscriptionPlan: "Pro",
     primaryContact: "admin@acmecorp.com",
     primaryAdminId: "user1",
     resourceLimits: {

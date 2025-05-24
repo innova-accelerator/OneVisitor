@@ -14,10 +14,12 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search } from "lucide-react";
 import { mockTenants } from "./mockTenants";
+import { AddOrganizationModal } from "@/components/admin/AddOrganizationModal";
 
 const TenantsIndexPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [tenants] = useState(mockTenants);
+  const [tenants, setTenants] = useState(mockTenants);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const filteredTenants = tenants.filter(
     tenant =>
@@ -29,7 +31,7 @@ const TenantsIndexPage = () => {
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Organization Management</h1>
-        <Button>Add Organization</Button>
+        <Button onClick={() => setIsAddModalOpen(true)}>Add Organization</Button>
       </div>
 
       <Card>
@@ -99,6 +101,41 @@ const TenantsIndexPage = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <AddOrganizationModal
+        isOpen={isAddModalOpen}
+        onSave={(newOrg) => {
+          // Generate a new ID for the mock tenant
+          const newId = (Math.max(...tenants.map(t => parseInt(t.id))) + 1).toString();
+          
+          // Create a new tenant object with the form values and default values for other fields
+          const newTenant = {
+            id: newId,
+            name: newOrg.name,
+            shortname: newOrg.shortname,
+            logo: null,
+            primaryColor: "#3b82f6",
+            status: newOrg.status,
+            userCount: 0,
+            subscriptionPlan: newOrg.subscriptionPlan,
+            primaryContact: "",
+            primaryAdminId: "",
+            resourceLimits: {
+              maxSites: 3,
+              maxKiosks: 5,
+              maxUsers: 10,
+              maxVisitorsPerMonth: 500
+            }
+          };
+          
+          // TODO: POST /api/admin/tenants with newOrg
+          console.log("Creating new organization:", newTenant);
+          
+          setTenants(prev => [...prev, newTenant]);
+          setIsAddModalOpen(false);
+        }}
+        onCancel={() => setIsAddModalOpen(false)}
+      />
     </div>
   );
 };

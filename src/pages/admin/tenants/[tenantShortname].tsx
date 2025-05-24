@@ -46,6 +46,7 @@ const TenantAdminSettingsPage = () => {
     primaryContact: tenant?.primaryContact || "",
     primaryAdminId: tenant?.primaryAdminId || "",
     status: tenant?.status === "active",
+    subscriptionPlan: tenant?.subscriptionPlan || "Basic",
     maxSites: tenant?.resourceLimits.maxSites || 3,
     maxKiosks: tenant?.resourceLimits.maxKiosks || 5, 
     maxUsers: tenant?.resourceLimits.maxUsers || 10,
@@ -68,6 +69,7 @@ const TenantAdminSettingsPage = () => {
         primaryContact: tenant.primaryContact,
         primaryAdminId: tenant.primaryAdminId,
         status: tenant.status === "active",
+        subscriptionPlan: tenant.subscriptionPlan,
         maxSites: tenant.resourceLimits.maxSites,
         maxKiosks: tenant.resourceLimits.maxKiosks,
         maxUsers: tenant.resourceLimits.maxUsers,
@@ -95,6 +97,7 @@ const TenantAdminSettingsPage = () => {
       primaryContact: formValues.primaryContact,
       primaryAdminId: formValues.primaryAdminId,
       status: formValues.status ? "active" : "inactive",
+      subscriptionPlan: formValues.subscriptionPlan,
       resourceLimits: {
         maxSites: formValues.maxSites,
         maxKiosks: formValues.maxKiosks,
@@ -103,7 +106,7 @@ const TenantAdminSettingsPage = () => {
       }
     };
 
-    // TODO: PUT /api/admin/tenants/:tenantShortname/settings
+    // TODO: PUT /api/admin/tenants/:tenantShortname/settings with updatedTenant
     console.log("Saving tenant settings:", updatedTenant);
 
     toast({
@@ -183,6 +186,24 @@ const TenantAdminSettingsPage = () => {
                         {user.name} ({user.email})
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="subscription-plan">Subscription Plan</Label>
+                <Select 
+                  value={formValues.subscriptionPlan}
+                  onValueChange={(value) => handleInputChange("subscriptionPlan", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a plan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Basic">Basic</SelectItem>
+                    <SelectItem value="Pro">Pro</SelectItem>
+                    <SelectItem value="Business">Business</SelectItem>
+                    <SelectItem value="Enterprise">Enterprise</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
