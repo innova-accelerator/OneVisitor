@@ -5,7 +5,6 @@ import { useUserManagement } from "@/hooks/useUserManagement";
 import { UsersHeader } from "@/components/users/UsersHeader";
 import { UserTableContainer } from "@/components/users/UserTableContainer";
 import { UserModals } from "@/components/users/UserModals";
-import { MockDisclaimer } from "@/components/users/MockDisclaimer";
 import { useResourceLimits } from "@/hooks/useResourceLimits";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -78,8 +77,6 @@ const Users = () => {
           orgAccess={orgAccess}
           onOrgAccessChange={handleOrgAccessChange}
         />
-        
-        <MockDisclaimer />
       </div>
       
       <UserModals

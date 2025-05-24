@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TenantContext } from "@/App";
+import { FileUpload } from "@/components/ui/file-upload";
 
 const BrandingSettings = () => {
   const { tenantBranding, setTenantBranding } = useContext(TenantContext);
@@ -16,6 +17,28 @@ const BrandingSettings = () => {
     secondaryColor: tenantBranding?.secondaryColor || "#1E40AF",
     font: tenantBranding?.font || "Inter"
   });
+
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(brandingSettings.logo || null);
+
+  const handleLogoSelect = (file: File) => {
+    setLogoFile(file);
+    // Generate a preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setLogoUrl(previewUrl);
+    // Update branding settings with new logo URL
+    setBrandingSettings({...brandingSettings, logo: previewUrl});
+    // TODO: In a real implementation, you would upload this file to your server/storage
+  };
+
+  const handleClearLogo = () => {
+    setLogoFile(null);
+    if (logoUrl && logoUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(logoUrl);
+    }
+    setLogoUrl(null);
+    setBrandingSettings({...brandingSettings, logo: ""});
+  };
 
   const handleBrandingUpdate = () => {
     if (setTenantBranding) {
@@ -35,20 +58,26 @@ const BrandingSettings = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
+              <Label htmlFor="logo-upload">Organization Logo</Label>
+              <div className="mt-2">
+                <FileUpload 
+                  onFileSelect={handleLogoSelect}
+                  onClear={handleClearLogo}
+                  accept="image/*"
+                  maxSizeMB={2}
+                  buttonText="Upload Logo"
+                  dropzoneText="or drag and drop an image"
+                  previewUrl={logoUrl}
+                />
+              </div>
+            </div>
+            
+            <div>
               <Label htmlFor="org-name">Organization Name</Label>
               <Input 
                 id="org-name" 
                 value={brandingSettings.name}
                 onChange={(e) => setBrandingSettings({...brandingSettings, name: e.target.value})}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="org-logo">Logo URL</Label>
-              <Input 
-                id="org-logo" 
-                value={brandingSettings.logo}
-                onChange={(e) => setBrandingSettings({...brandingSettings, logo: e.target.value})}
               />
             </div>
             

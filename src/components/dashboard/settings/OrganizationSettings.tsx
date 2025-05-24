@@ -4,33 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { FileUpload } from "@/components/ui/file-upload";
 
 const OrganizationSettings = () => {
   const [orgName, setOrgName] = useState("Acme Corporation");
   const [primaryContact, setPrimaryContact] = useState("admin@acmecorp.com");
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoUrl, setLogoUrl] = useState<string | null>("https://placehold.co/100x50?text=ACME");
-
-  const handleFileSelect = (file: File) => {
-    setLogoFile(file);
-    // Generate a preview URL
-    const previewUrl = URL.createObjectURL(file);
-    setLogoUrl(previewUrl);
-    // TODO: In a real implementation, you would upload this file to your server/storage
-  };
-
-  const handleClearLogo = () => {
-    setLogoFile(null);
-    if (logoUrl && logoUrl.startsWith("blob:")) {
-      URL.revokeObjectURL(logoUrl);
-    }
-    setLogoUrl(null);
-  };
 
   const handleSubmit = () => {
     // TODO: Save organization settings
-    console.log("Saving organization settings:", { orgName, primaryContact, logoFile });
+    console.log("Saving organization settings:", { orgName, primaryContact });
   };
 
   return (
@@ -43,21 +24,6 @@ const OrganizationSettings = () => {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4">
-          <div>
-            <Label htmlFor="logo-upload">Organization Logo</Label>
-            <div className="mt-2">
-              <FileUpload 
-                onFileSelect={handleFileSelect}
-                onClear={handleClearLogo}
-                accept="image/*"
-                maxSizeMB={2}
-                buttonText="Upload Logo"
-                dropzoneText="or drag and drop an image"
-                previewUrl={logoUrl}
-              />
-            </div>
-          </div>
-          
           <div>
             <Label htmlFor="org-name">Organization Name</Label>
             <Input 
