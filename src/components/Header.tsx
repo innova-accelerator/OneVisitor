@@ -33,8 +33,8 @@ export function Header() {
         <nav className="space-x-4">
           <Link to="/dashboard/kiosks" className="text-white hover:text-gray-100">Sites</Link>
           <Link to="/dashboard/visitors" className="text-white hover:text-gray-100">Visitors</Link>
-          <Link to="/dashboard/settings" className="text-white hover:text-gray-100">Settings</Link>
           <Link to="/dashboard/users" className="text-white hover:text-gray-100">Users</Link>
+          <Link to="/dashboard/settings" className="text-white hover:text-gray-100">Settings</Link>
         </nav>
         <button
           onClick={handleLogout}
