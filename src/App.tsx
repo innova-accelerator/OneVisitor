@@ -10,7 +10,6 @@ import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/admin/Admin";
 import CheckIn from "./pages/CheckIn";
 import NotFound from "./pages/NotFound";
-import TenantAdmin from "./pages/TenantAdmin";
 import { TenantBranding } from "@/models/tenant";
 
 // Define default branding
@@ -74,7 +73,6 @@ const App = () => {
               <Route path="/dashboard/*" element={<Dashboard />} />
               <Route path="/checkin/:sitePath?" element={<CheckIn />} />
               <Route path="/admin/*" element={<Admin />} />
-              <Route path="/admin/tenants" element={<TenantAdmin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
