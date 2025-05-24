@@ -84,5 +84,6 @@ return (
     />
   </>
 );
+};
 
 export default Users;
