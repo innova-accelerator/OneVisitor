@@ -70,7 +70,7 @@ const Index = () => {
           <span className="text-xl font-bold text-gray-800">OneVisitor</span>
         </Link>
         <nav>
-          <Link to="/dashboard" className="text-blue-600 hover:underline">
+          <Link to="/login" className="text-blue-600 hover:underline">
             Sign In
           </Link>
         </nav>
