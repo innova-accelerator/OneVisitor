@@ -2,7 +2,6 @@
 import React from 'react';
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { useUserManagement } from "@/hooks/useUserManagement";
-
 import { UserTableContainer } from "@/components/users/UserTableContainer";
 import { UserModals } from "@/components/users/UserModals";
 import { MockDisclaimer } from "@/components/users/MockDisclaimer";
