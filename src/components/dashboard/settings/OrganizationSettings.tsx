@@ -1,4 +1,7 @@
 
+// TODO: Integration Points
+// - Save organization settings
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -10,7 +13,7 @@ const OrganizationSettings = () => {
   const [primaryContact, setPrimaryContact] = useState("admin@acmecorp.com");
 
   const handleSubmit = () => {
-    // TODO: Save organization settings
+    // Save organization settings
     console.log("Saving organization settings:", { orgName, primaryContact });
   };
 

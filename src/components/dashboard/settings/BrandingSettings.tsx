@@ -1,4 +1,3 @@
-
 import { useState, useContext } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -28,7 +27,6 @@ const BrandingSettings = () => {
     setLogoUrl(previewUrl);
     // Update branding settings with new logo URL
     setBrandingSettings({...brandingSettings, logo: previewUrl});
-    // TODO: In a real implementation, you would upload this file to your server/storage
   };
 
   const handleClearLogo = () => {

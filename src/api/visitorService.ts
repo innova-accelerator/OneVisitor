@@ -1,4 +1,7 @@
 
+// TODO: Integration Points
+// - Backend must handle multipart upload
+
 /**
  * Visitor API service
  * Handles check-in and other visitor-related operations
@@ -11,7 +14,6 @@
  * @returns Promise with the fetch response
  */
 export function checkIn(sitePath: string, formData: FormData) {
-  // TODO: backend must handle multipart upload
   return fetch(`/api/sites/${sitePath}/visitors`, {
     method: 'POST',
     body: formData,

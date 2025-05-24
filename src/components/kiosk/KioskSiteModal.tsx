@@ -1,4 +1,6 @@
 
+// No TODOs found in this file
+
 import { useState } from "react";
 import { KioskSite } from "@/models/kiosk";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";

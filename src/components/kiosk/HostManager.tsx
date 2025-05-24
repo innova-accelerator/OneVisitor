@@ -1,4 +1,6 @@
 
+// No TODOs found in this file
+
 import { useState } from "react";
 import { Host } from "@/models/kiosk";
 import { Card, CardContent } from "@/components/ui/card";

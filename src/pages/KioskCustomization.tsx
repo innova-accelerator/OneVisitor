@@ -1,4 +1,7 @@
 
+// TODO: Integration Points
+// - Add integration settings UI in the integrations tab
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
