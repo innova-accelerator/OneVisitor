@@ -1,88 +1,37 @@
 
 import React from 'react';
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  PaginationState,
-  OnChangeFn,
-} from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DataTableSearch } from './data-table-search';
-import { DataTablePagination } from './data-table-pagination';
 import { DataTableExport } from './data-table-export';
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+interface Column<TData> {
+  accessorKey?: string;
+  header: string | React.ReactNode;
+  cell?: ({ row }: { row: { original: TData } }) => React.ReactNode;
+}
+
+interface DataTableProps<TData> {
+  columns: Column<TData>[];
   data: TData[];
   onExport?: () => void;
   exportFileName?: string;
-  pagination?: PaginationState;
-  onPaginationChange?: OnChangeFn<PaginationState>;
-  pageCount?: number;
-  sorting?: SortingState;
-  onSortingChange?: OnChangeFn<SortingState>;
   loading?: boolean;
   noDataMessage?: string;
   searchable?: boolean;
   onSearch?: (searchTerm: string) => void;
-  manualPagination?: boolean;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData>({
   columns,
   data,
   onExport,
   exportFileName,
-  pagination,
-  onPaginationChange,
-  pageCount,
-  sorting,
-  onSortingChange,
   loading = false,
   noDataMessage = 'No data available',
   searchable = false,
   onSearch,
-  manualPagination = false,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   const [searchTerm, setSearchTerm] = React.useState('');
-  
-  // Default pagination state if not provided
-  const [internalPagination, setInternalPagination] = React.useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
-  // Use provided pagination state or internal state
-  const paginationState = pagination || internalPagination;
-  const handlePaginationChange = onPaginationChange || setInternalPagination;
-
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: !manualPagination ? getPaginationRowModel() : undefined,
-    manualPagination: manualPagination,
-    pageCount: pageCount,
-    onPaginationChange: handlePaginationChange,
-    state: {
-      pagination: paginationState,
-      sorting: sorting,
-    },
-    initialState: {
-      pagination: {
-        pageIndex: 0,
-        pageSize: 10,
-      },
-    },
-    getSortedRowModel: getSortedRowModel(),
-    onSortingChange: onSortingChange,
-    manualSorting: !!onSortingChange,
-  });
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
@@ -90,6 +39,16 @@ export function DataTable<TData, TValue>({
     if (onSearch) {
       onSearch(value);
     }
+  };
+
+  const getCellValue = (row: TData, column: Column<TData>) => {
+    if (column.cell) {
+      return column.cell({ row: { original: row } });
+    }
+    if (column.accessorKey) {
+      return (row as any)[column.accessorKey];
+    }
+    return '';
   };
 
   return (
@@ -109,20 +68,13 @@ export function DataTable<TData, TValue>({
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
+            <TableRow>
+              {columns.map((column, index) => (
+                <TableHead key={column.accessorKey || index}>
+                  {column.header}
+                </TableHead>
+              ))}
+            </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
@@ -134,15 +86,12 @@ export function DataTable<TData, TValue>({
                   Loading data...
                 </TableCell>
               </TableRow>
-            ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            ) : data.length ? (
+              data.map((row, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  {columns.map((column, columnIndex) => (
+                    <TableCell key={column.accessorKey || columnIndex}>
+                      {getCellValue(row, column)}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -160,10 +109,6 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-
-      {(pagination || (!manualPagination && data.length > 10)) && (
-        <DataTablePagination table={table} totalCount={data.length} />
-      )}
     </div>
   );
 }

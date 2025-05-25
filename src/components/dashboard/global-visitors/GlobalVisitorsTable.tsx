@@ -1,12 +1,11 @@
 
+import React from 'react';
 import { 
   Badge 
 } from "@/components/ui/badge";
 import { User, Clock } from "lucide-react";
 import { SiteVisitor } from "@/models/kiosk";
 import { DataTable } from "@/components/ui/data-table";
-import { ColumnDef } from "@tanstack/react-table";
-import { useState } from "react";
 
 interface GlobalVisitorsTableProps {
   filteredVisitors: SiteVisitor[];
@@ -17,21 +16,20 @@ export const GlobalVisitorsTable = ({
   filteredVisitors,
   getSiteName
 }: GlobalVisitorsTableProps) => {
-  const [sorting, setSorting] = useState<{ id: string, desc: boolean }[]>([]);
   
   // Define columns for the DataTable
-  const columns: ColumnDef<SiteVisitor>[] = [
+  const columns = [
     {
       accessorKey: "siteId",
       header: "Site",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { original: SiteVisitor } }) => {
         return <div className="font-medium">{getSiteName(row.original.siteId)}</div>;
       },
     },
     {
       accessorKey: "name",
       header: "Visitor",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { original: SiteVisitor } }) => {
         const visitor = row.original;
         return (
           <div className="flex items-center">
@@ -51,7 +49,7 @@ export const GlobalVisitorsTable = ({
     {
       accessorKey: "visitorType",
       header: "Type",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { original: SiteVisitor } }) => {
         return (
           <Badge variant="outline">
             {row.original.visitorType}
@@ -66,7 +64,7 @@ export const GlobalVisitorsTable = ({
     {
       accessorKey: "checkInTime",
       header: "Check-In Time",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { original: SiteVisitor } }) => {
         return (
           <div className="flex items-center">
             <Clock className="h-4 w-4 mr-1 text-gray-500" />
@@ -78,7 +76,7 @@ export const GlobalVisitorsTable = ({
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { original: SiteVisitor } }) => {
         const status = row.original.status;
         return (
           <Badge 
@@ -101,11 +99,8 @@ export const GlobalVisitorsTable = ({
       <DataTable 
         columns={columns}
         data={filteredVisitors}
-        sorting={sorting}
-        onSortingChange={setSorting}
         noDataMessage="No visitors found matching your filters."
       />
     </div>
   );
 };
-

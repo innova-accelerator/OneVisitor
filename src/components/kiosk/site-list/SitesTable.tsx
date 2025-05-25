@@ -1,13 +1,13 @@
 
+import React from 'react';
 import { KioskSite } from "@/models/kiosk";
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Eye, Globe, Power } from "lucide-react";
+import { Edit, Trash2, Eye } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { formatDate } from "@/utils/helpers";
 
 interface SitesTableProps {
   sites: KioskSite[];
