@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTenant } from '@/context/TenantContext';
 import { useToast } from './use-toast';
 
@@ -107,7 +107,7 @@ export function useApi(options: ApiOptions = {}) {
   }
   
   /**
-   * Hook for making a GET request
+   * Hook for making a GET request with useEffect and useState
    */
   function useGet<T>(endpoint: string, config: RequestConfig = {}): ApiResponse<T> {
     const [data, setData] = useState<T | null>(null);
@@ -116,18 +116,49 @@ export function useApi(options: ApiOptions = {}) {
     
     const fetchData = async (): Promise<T | null> => {
       setLoading(true);
+      setError(null);
       try {
         const result = await request<T>(endpoint, 'GET', config);
         setData(result);
-        setError(null);
         return result;
       } catch (err) {
-        setError(err instanceof Error ? err : new Error(String(err)));
+        const error = err instanceof Error ? err : new Error(String(err));
+        setError(error);
         return null;
       } finally {
         setLoading(false);
       }
     };
+
+    useEffect(() => {
+      let cancelled = false;
+      
+      const loadData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const result = await request<T>(endpoint, 'GET', config);
+          if (!cancelled) {
+            setData(result);
+          }
+        } catch (err) {
+          if (!cancelled) {
+            const error = err instanceof Error ? err : new Error(String(err));
+            setError(error);
+          }
+        } finally {
+          if (!cancelled) {
+            setLoading(false);
+          }
+        }
+      };
+
+      loadData();
+      
+      return () => {
+        cancelled = true;
+      };
+    }, [endpoint, JSON.stringify(config)]);
     
     return { data, error, loading, refetch: fetchData };
   }
