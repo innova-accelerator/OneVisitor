@@ -2,7 +2,7 @@
 import React from 'react';
 import { KioskSite } from "@/models/kiosk";
 import { useState } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2, Eye } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -40,6 +40,87 @@ export const SitesTable = ({
     );
   });
 
+  const columns = [
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }: { row: { original: KioskSite } }) => (
+        <div className="flex items-center">
+          <div className="flex mr-3">
+            <span
+              className="inline-block w-3 h-6 rounded-l border"
+              style={{ backgroundColor: row.original.branding?.primaryColor || '#2563eb' }}
+            />
+            <span
+              className="inline-block w-3 h-6 rounded-r border"
+              style={{ backgroundColor: row.original.branding?.secondaryColor || '#1d4ed8' }}
+            />
+          </div>
+          <span>{row.original.name}</span>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "url",
+      header: "URL",
+      cell: ({ row }: { row: { original: KioskSite } }) => (
+        <span className="text-gray-600 text-sm">/{getSitePath(row.original)}</span>
+      ),
+    },
+    {
+      accessorKey: "published",
+      header: "Status",
+      cell: ({ row }: { row: { original: KioskSite } }) => (
+        <div className="flex justify-center">
+          <Switch
+            checked={row.original.published || false}
+            onCheckedChange={(checked) => onTogglePublish(row.original.id, checked)}
+          />
+        </div>
+      ),
+    },
+    {
+      accessorKey: "lastPublished",
+      header: "Last Published",
+      cell: ({ row }: { row: { original: KioskSite } }) => (
+        row.original.published ? (
+          <span className="text-sm text-gray-600">{formatDate(row.original.lastPublished)}</span>
+        ) : (
+          <Badge variant="outline" className="font-normal">Draft</Badge>
+        )
+      ),
+    },
+    {
+      accessorKey: "visitorCount",
+      header: "Visitors",
+      cell: ({ row }: { row: { original: KioskSite } }) => (
+        <span className="text-sm">{row.original.visitorCount || 0}</span>
+      ),
+    },
+    {
+      accessorKey: "actions",
+      header: "Actions",
+      cell: ({ row }: { row: { original: KioskSite } }) => (
+        <div className="flex justify-end gap-2">
+          <Button size="sm" variant="ghost" onClick={() => onPreview(row.original)}>
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => onEdit(row.original)}>
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-red-600"
+            onClick={() => onDelete(row.original)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
       <div className="p-4 border-b">
@@ -68,88 +149,15 @@ export const SitesTable = ({
       </div>
       
       <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[300px]">Name</TableHead>
-              <TableHead>URL</TableHead>
-              <TableHead className="text-center">Status</TableHead>
-              <TableHead className="text-center">Last Published</TableHead>
-              <TableHead className="text-center">Visitors</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredSites.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                  {sites.length === 0
-                    ? "No sites have been created yet"
-                    : "No sites match your search criteria"}
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredSites.map((site) => (
-                <TableRow key={site.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center">
-                      <div className="flex mr-3">
-                        <span
-                          className="inline-block w-3 h-6 rounded-l border"
-                          style={{ backgroundColor: site.branding?.primaryColor || '#2563eb' }}
-                        />
-                        <span
-                          className="inline-block w-3 h-6 rounded-r border"
-                          style={{ backgroundColor: site.branding?.secondaryColor || '#1d4ed8' }}
-                        />
-                      </div>
-                      <span>{site.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-gray-600 text-sm">/{getSitePath(site)}</span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex justify-center">
-                      <Switch
-                        checked={site.published || false}
-                        onCheckedChange={(checked) => onTogglePublish(site.id, checked)}
-                      />
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {site.published ? (
-                      <span className="text-sm text-gray-600">{formatDate(site.lastPublished)}</span>
-                    ) : (
-                      <Badge variant="outline" className="font-normal">Draft</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <span className="text-sm">{site.visitorCount || 0}</span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button size="sm" variant="ghost" onClick={() => onPreview(site)}>
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => onEdit(site)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-red-600"
-                        onClick={() => onDelete(site)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+        <DataTable 
+          columns={columns}
+          data={filteredSites}
+          noDataMessage={
+            sites.length === 0
+              ? "No sites have been created yet"
+              : "No sites match your search criteria"
+          }
+        />
       </div>
     </div>
   );
