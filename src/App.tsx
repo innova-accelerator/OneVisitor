@@ -2,6 +2,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React, { useState } from "react";
 import Index from "./pages/Index";
@@ -38,6 +39,9 @@ export const TenantContext = React.createContext<{
   setTenantBranding: () => {}
 });
 
+// Create the query client
+const queryClient = new QueryClient();
+
 const App = () => {
   // Tenant state management
   const [tenantId, setTenantId] = useState<string | null>("acme-corp");
@@ -52,29 +56,31 @@ const App = () => {
   });
 
   return (
-    <TenantContext.Provider value={{ 
-      tenantId,
-      orgShortname,
-      currentTenant,
-      setCurrentTenant,
-      tenantBranding,
-      setTenantBranding
-    }}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/dashboard/*" element={<Dashboard />} />
-            <Route path="/checkin/:sitePath?" element={<CheckIn />} />
-            <Route path="/admin/*" element={<Admin />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </TenantContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <TenantContext.Provider value={{ 
+        tenantId,
+        orgShortname,
+        currentTenant,
+        setCurrentTenant,
+        tenantBranding,
+        setTenantBranding
+      }}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/dashboard/*" element={<Dashboard />} />
+              <Route path="/checkin/:sitePath?" element={<CheckIn />} />
+              <Route path="/admin/*" element={<Admin />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </TenantContext.Provider>
+    </QueryClientProvider>
   );
 };
 
