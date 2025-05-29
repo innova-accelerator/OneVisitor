@@ -1,7 +1,6 @@
-
 // No TODOs found in this file
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Host } from "@/models/kiosk";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Edit, Plus, Trash2, Upload, Search } from "lucide-react";
+import { read, utils } from 'xlsx';
 
 interface HostManagerProps {
   siteId: string;
@@ -25,7 +25,7 @@ export const HostManager = ({
   const [currentHost, setCurrentHost] = useState<Host | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [csvDialogOpen, setCsvDialogOpen] = useState(false);
-  const [csvContent, setCsvContent] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenDialog = (host?: Host) => {
     if (host) {
@@ -73,53 +73,59 @@ export const HostManager = ({
     setHosts(hosts.filter(h => h.id !== id));
   };
 
-  const handleImportCSV = () => {
-    // Basic CSV parsing
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
     try {
-      const lines = csvContent.trim().split('\n');
-      if (lines.length === 0) return;
-      
-      // Get headers
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-      
-      const nameIndex = headers.indexOf('name');
-      const emailIndex = headers.indexOf('email');
-      const phoneIndex = headers.indexOf('phone');
-      const departmentIndex = headers.indexOf('department');
-      
-      if (nameIndex === -1 || emailIndex === -1) {
-        alert('CSV must have name and email columns');
-        return;
+      const data = await file.arrayBuffer();
+      const workbook = read(data);
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = utils.sheet_to_json(worksheet);
+
+      // Define the type for row data
+      interface ImportRow {
+        name?: string;
+        Name?: string;
+        NAME?: string;
+        email?: string;
+        Email?: string;
+        EMAIL?: string;
+        phone?: string;
+        Phone?: string;
+        PHONE?: string;
+        department?: string;
+        Department?: string;
+        DEPARTMENT?: string;
+        [key: string]: string | undefined;
       }
-      
-      // Parse rows
-      const newHosts: Host[] = [];
-      
-      for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',').map(v => v.trim());
-        
-        if (values.length < 2) continue; // Skip empty lines
-        
-        const host: Host = {
-          id: `host-${Date.now()}-${i}`,
-          name: values[nameIndex] || '',
-          email: values[emailIndex] || '',
-          phone: phoneIndex > -1 ? values[phoneIndex] || '' : '',
-          department: departmentIndex > -1 ? values[departmentIndex] || '' : ''
-        };
-        
-        if (host.name && host.email) {
-          newHosts.push(host);
+
+      // Validate and transform the data
+      const newHosts: Host[] = jsonData.map((row: ImportRow) => {
+        const name = row.name || row.Name || row.NAME;
+        const email = row.email || row.Email || row.EMAIL;
+        const phone = row.phone || row.Phone || row.PHONE || '';
+        const department = row.department || row.Department || row.DEPARTMENT || '';
+
+        if (!name || !email) {
+          throw new Error('Name and email are required fields');
         }
-      }
-      
+
+        return {
+          id: `host-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          name: String(name),
+          email: String(email),
+          phone: String(phone),
+          department: String(department)
+        };
+      });
+
       // Add new hosts
       setHosts([...hosts, ...newHosts]);
       setCsvDialogOpen(false);
-      setCsvContent("");
     } catch (error) {
-      console.error('Error parsing CSV', error);
-      alert('Error parsing CSV. Please check the format.');
+      console.error('Error parsing file:', error);
+      alert('Error parsing file. Please make sure it has the required columns (name, email) and is in a valid format.');
     }
   };
 
@@ -142,10 +148,17 @@ export const HostManager = ({
           </p>
         </div>
         <div className="flex space-x-2">
-          <Button onClick={() => setCsvDialogOpen(true)} variant="outline">
+          <Button onClick={() => fileInputRef.current?.click()} variant="outline">
             <Upload className="h-4 w-4 mr-2" />
-            Import CSV
+            Import Hosts
           </Button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept=".csv,.xlsx,.xls"
+            onChange={handleFileUpload}
+          />
           <Button onClick={() => handleOpenDialog()}>
             <Plus className="h-4 w-4 mr-2" />
             Add Host
@@ -180,30 +193,30 @@ export const HostManager = ({
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8 text-gray-500">
                     {hosts.length === 0 
-                      ? "No hosts added yet. Add hosts individually or import from CSV."
+                      ? "No hosts added yet. Add hosts individually or import from a file."
                       : "No hosts match your search query."
                     }
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredHosts.map((host) => (
+                filteredHosts.map(host => (
                   <TableRow key={host.id}>
                     <TableCell className="font-medium">{host.name}</TableCell>
                     <TableCell>{host.email}</TableCell>
-                    <TableCell>{host.phone || "-"}</TableCell>
-                    <TableCell>{host.department || "-"}</TableCell>
+                    <TableCell>{host.phone}</TableCell>
+                    <TableCell>{host.department}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
-                        <Button 
-                          size="sm" 
+                        <Button
                           variant="ghost"
+                          size="sm"
                           onClick={() => handleOpenDialog(host)}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           className="text-red-600"
                           onClick={() => handleDeleteHost(host.id)}
                         >
@@ -224,50 +237,45 @@ export const HostManager = ({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {currentHost?.id ? "Edit Host" : "Add Host"}
+              {currentHost?.id ? "Edit Host" : "Add New Host"}
             </DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
-            <div>
-              <Label htmlFor="host-name">Name</Label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Name</label>
               <Input
-                id="host-name"
                 value={currentHost?.name || ""}
                 onChange={(e) => setCurrentHost(prev => prev ? {...prev, name: e.target.value} : null)}
-                placeholder="John Doe"
+                placeholder="Enter host name"
               />
             </div>
             
-            <div>
-              <Label htmlFor="host-email">Email</Label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Email</label>
               <Input
-                id="host-email"
                 type="email"
                 value={currentHost?.email || ""}
                 onChange={(e) => setCurrentHost(prev => prev ? {...prev, email: e.target.value} : null)}
-                placeholder="john@example.com"
+                placeholder="Enter host email"
               />
             </div>
             
-            <div>
-              <Label htmlFor="host-phone">Phone (Optional)</Label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Phone</label>
               <Input
-                id="host-phone"
-                type="tel"
                 value={currentHost?.phone || ""}
                 onChange={(e) => setCurrentHost(prev => prev ? {...prev, phone: e.target.value} : null)}
-                placeholder="(555) 123-4567"
+                placeholder="Enter host phone"
               />
             </div>
             
-            <div>
-              <Label htmlFor="host-department">Department (Optional)</Label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Department</label>
               <Input
-                id="host-department"
                 value={currentHost?.department || ""}
                 onChange={(e) => setCurrentHost(prev => prev ? {...prev, department: e.target.value} : null)}
-                placeholder="Engineering, Sales, etc."
+                placeholder="Enter host department"
               />
             </div>
           </div>
@@ -278,44 +286,6 @@ export const HostManager = ({
             </Button>
             <Button onClick={handleSaveHost}>
               {currentHost?.id ? "Update Host" : "Add Host"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* CSV Import Dialog */}
-      <Dialog open={csvDialogOpen} onOpenChange={setCsvDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Import Hosts from CSV</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <div>
-              <p className="text-sm text-gray-500 mb-2">
-                Paste your CSV data below. The first row should contain headers.
-              </p>
-              <p className="text-sm text-gray-500 mb-4">
-                Required columns: <strong>name, email</strong><br />
-                Optional columns: <strong>phone, department</strong>
-              </p>
-              <textarea
-                className="w-full h-40 p-2 border rounded-md font-mono text-sm"
-                placeholder="name,email,phone,department
-John Doe,john@example.com,555-123-4567,Engineering
-Jane Smith,jane@example.com,555-987-6543,Marketing"
-                value={csvContent}
-                onChange={(e) => setCsvContent(e.target.value)}
-              />
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCsvDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleImportCSV}>
-              Import
             </Button>
           </DialogFooter>
         </DialogContent>

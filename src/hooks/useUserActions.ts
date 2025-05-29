@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { User, UserFormData } from "@/types/user";
 import { SitePermission } from "@/components/users/UserPermissionsModal";
@@ -8,6 +7,7 @@ export function useUserActions(
   users: User[], 
   setUsers: React.Dispatch<React.SetStateAction<User[]>>,
   setIsEditorOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  currentUser: User | undefined,
   setCurrentUser: React.Dispatch<React.SetStateAction<User | undefined>>,
   setIsDeactivateDialogOpen: React.Dispatch<React.SetStateAction<boolean>>,
   setIsPermissionsModalOpen: React.Dispatch<React.SetStateAction<boolean>>,
@@ -53,8 +53,6 @@ export function useUserActions(
       roles: data.roles.filter(r => r !== 'Superadmin')
     };
     
-    const currentUser = users.find(user => user.id === (data as User).id);
-    
     if (currentUser) {
       // Update existing user
       setUsers(prevUsers => 
@@ -83,9 +81,11 @@ export function useUserActions(
 
   // Confirm deactivation of a user
   const handleConfirmDeactivate = () => {
+    if (!currentUser) return;
+    
     setUsers(prevUsers => 
       prevUsers.map(user => {
-        if (user.id === (users.find(u => u.id === user.id)?.id)) {
+        if (user.id === currentUser.id) {
           return { ...user, isActive: false };
         }
         return user;
@@ -96,7 +96,7 @@ export function useUserActions(
     setIsDeactivateDialogOpen(false);
     
     // TODO: In a real implementation, this would call the deactivate user API endpoint
-    console.log('Deactivate user:', users.find(u => !u.isActive));
+    console.log('Deactivate user:', currentUser);
   };
   
   // Handle saving permissions for a user

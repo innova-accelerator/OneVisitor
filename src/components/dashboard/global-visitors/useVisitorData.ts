@@ -1,4 +1,3 @@
-
 import { useContext, useCallback, useMemo } from 'react';
 import { SiteVisitor } from '@/models/kiosk';
 import { TenantContext } from '@/App';
@@ -73,10 +72,32 @@ export function useVisitorData(siteId?: string) {
   }, [sites]);
   
   const handleExport = useCallback((data: SiteVisitor[]) => {
-    console.log("Exporting data:", data);
-    // In a real app, this would generate and download a CSV/Excel file
-    alert(`Exported ${data.length} visitor records for ${siteId ? getSiteName(siteId) : 'all sites'}`);
-  }, [getSiteName, siteId]);
+    // Convert data to CSV format
+    const headers = ['Site', 'Visitor Name', 'Company', 'Type', 'Host', 'Check-In Time', 'Status'];
+    const csvRows = [
+      headers.join(','),
+      ...data.map(visitor => [
+        getSiteName(visitor.siteId),
+        visitor.name,
+        visitor.company || '',
+        visitor.visitorType,
+        visitor.host,
+        visitor.checkInTime,
+        visitor.status
+      ].map(field => `"${field}"`).join(','))
+    ].join('\n');
+
+    // Create and download the file
+    const blob = new Blob([csvRows], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `visitors-export-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, [getSiteName]);
   
   return {
     sites: siteId ? sites.filter(s => s.id === siteId) : sites,

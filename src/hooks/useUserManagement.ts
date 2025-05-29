@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { User } from "@/types/user";
 import { SitePermission } from "@/components/users/UserPermissionsModal";
@@ -53,6 +52,7 @@ export function useUserManagement() {
     users,
     setUsers,
     setIsEditorOpen,
+    currentUser,
     setCurrentUser,
     setIsDeactivateDialogOpen,
     setIsPermissionsModalOpen,
