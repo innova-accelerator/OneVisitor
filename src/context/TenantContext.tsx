@@ -40,18 +40,19 @@ export const TenantProvider = ({ children }: TenantProviderProps) => {
       const hostname = window.location.hostname;
       
       // Check if we're on a subdomain
-      if (hostname !== 'localhost' && hostname !== 'onevisitor.app') {
-        const subdomain = hostname.split('.')[0];
-        if (subdomain && subdomain !== 'www') {
-          return { id: subdomain, shortname: subdomain };
-        }
-      }
       
+      const subdomain = hostname.split('.')[0];
+      console.info(subdomain)
+      if (subdomain && subdomain !== 'www') {
+        return { id: subdomain, shortname: subdomain };
+      }
+
       // Fallback for development
       return { id: 'acme-corp', shortname: 'acme-corp' };
     };
 
     const { id, shortname } = extractTenant();
+    console.info(id)
     setTenantId(id);
     setOrgShortname(shortname);
     setCurrentTenant(id);

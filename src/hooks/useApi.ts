@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useTenant } from '@/context/TenantContext';
 import { useToast } from './use-toast';
@@ -7,6 +6,7 @@ interface ApiOptions {
   baseUrl?: string;
   headers?: Record<string, string>;
   withCredentials?: boolean;
+  autoTimezone?: boolean; // Add option to auto-include timezone
 }
 
 interface RequestConfig extends RequestInit {
@@ -21,6 +21,14 @@ interface ApiResponse<T> {
 }
 
 /**
+ * Get current timezone offset in minutes
+ */
+function getTimezoneOffset(): string {
+  const offset = new Date().getTimezoneOffset();
+  return offset.toString();
+}
+
+/**
  * Hook for making API requests with standardized error handling and tenant context
  */
 export function useApi(options: ApiOptions = {}) {
@@ -29,11 +37,37 @@ export function useApi(options: ApiOptions = {}) {
   const defaultBaseUrl = import.meta.env.VITE_API_URL || '/api';
   
   const baseUrl = options.baseUrl || defaultBaseUrl;
+  const autoTimezone = options.autoTimezone !== false; // Default to true
+  
   const defaultHeaders = {
     'Content-Type': 'application/json',
     ...(tenantId ? { 'X-Tenant-ID': tenantId } : {}),
     ...options.headers,
   };
+  
+  /**
+   * Add timezone offset to data if it's a site-related POST/PUT request
+   */
+  function addTimezoneIfNeeded(endpoint: string, method: string, data: any): any {
+    if (!autoTimezone || !data || typeof data !== 'object') {
+      return data;
+    }
+    
+    // Check if this is a site-related request and method is POST or PUT
+    const isSiteRequest = method === 'POST' || method === 'PUT'
+    
+    if (isSiteRequest) {
+      // Only add timezoneOffset if it's not already provided
+      if (!data.hasOwnProperty('timezoneOffset')) {
+        return {
+          ...data,
+          timezoneOffset: getTimezoneOffset()
+        };
+      }
+    }
+    
+    return data;
+  }
   
   /**
    * Make a request to the API
@@ -60,11 +94,19 @@ export function useApi(options: ApiOptions = {}) {
       }
     }
     
+    // Add timezone offset if needed
+    const processedBody = addTimezoneIfNeeded(endpoint, method, body);
+    
     try {
+      console.log(`[API Request] ${method} ${url}`, {
+        headers: { ...defaultHeaders, ...headers },
+        body: processedBody
+      });
+      
       const response = await fetch(url, {
         method,
         headers: { ...defaultHeaders, ...headers },
-        body: body ? JSON.stringify(body) : undefined,
+        body: processedBody ? JSON.stringify(processedBody) : undefined,
         credentials: options.withCredentials ? 'include' : 'same-origin',
         ...rest,
       });
@@ -74,31 +116,58 @@ export function useApi(options: ApiOptions = {}) {
       
       if (!response.ok) {
         const errorData = isJson ? await response.json() : await response.text();
-        throw new Error(
-          typeof errorData === 'string' 
-            ? errorData 
-            : errorData.message || `Request failed with status ${response.status}`
-        );
+        const errorMessage = typeof errorData === 'string' 
+          ? errorData 
+          : errorData.message || `Request failed with status ${response.status}`;
+        
+        const error = new Error(errorMessage);
+        
+        // Log detailed error information to console
+        console.error(`[API Error] ${method} ${url}`, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: Object.fromEntries(response.headers.entries()),
+          errorData,
+          requestBody: processedBody
+        });
+        
+        throw error;
       }
       
       // Handle empty responses
       if (response.status === 204 || !contentType) {
+        console.log(`[API Success] ${method} ${url} - No content`);
         return null;
       }
       
       // Parse JSON response
       if (isJson) {
-        return await response.json();
+        const data = await response.json();
+        console.log(`[API Success] ${method} ${url}`, data);
+        return data;
       }
       
       // Return raw response for non-JSON content
-      return await response.text() as unknown as T;
+      const textData = await response.text();
+      console.log(`[API Success] ${method} ${url} - Text response`, textData);
+      return textData as unknown as T;
       
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      
+      // Log error to console with full context
+      console.error(`[API Request Failed] ${method} ${url}`, {
+        error,
+        message: errorMessage,
+        requestBody: processedBody,
+        headers: { ...defaultHeaders, ...headers },
+        timestamp: new Date().toISOString()
+      });
+      
       // Show error toast
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'An unknown error occurred',
+        title: 'API Error',
+        description: errorMessage,
         variant: 'destructive',
       });
       
@@ -123,6 +192,7 @@ export function useApi(options: ApiOptions = {}) {
         return result;
       } catch (err) {
         const errorObj = err instanceof Error ? err : new Error(String(err));
+        console.error(`[useGet Error] ${endpoint}`, errorObj);
         setError(errorObj);
         return null;
       } finally {
@@ -144,6 +214,7 @@ export function useApi(options: ApiOptions = {}) {
         } catch (err) {
           if (!cancelled) {
             const errorObj = err instanceof Error ? err : new Error(String(err));
+            console.error(`[useGet useEffect Error] ${endpoint}`, errorObj);
             setError(errorObj);
           }
         } finally {
@@ -174,5 +245,7 @@ export function useApi(options: ApiOptions = {}) {
     delete: <T>(endpoint: string, config?: RequestConfig) =>
       request<T>(endpoint, 'DELETE', config),
     useGet,
+    // Helper to get current timezone offset
+    getTimezoneOffset,
   };
 }

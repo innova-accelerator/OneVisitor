@@ -1,6 +1,6 @@
 // No TODOs found in this file
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Host } from "@/models/kiosk";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ interface HostManagerProps {
 
 export const HostManager = ({
   siteId,
+  handleChange,
   hosts: initialHosts
 }: HostManagerProps) => {
   const [hosts, setHosts] = useState<Host[]>(initialHosts);
@@ -68,6 +69,10 @@ export const HostManager = ({
     
     handleCloseDialog();
   };
+
+  useEffect(()=>{
+    handleChange("host", hosts)
+  },[hosts])
 
   const handleDeleteHost = (id: string) => {
     setHosts(hosts.filter(h => h.id !== id));

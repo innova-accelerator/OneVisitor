@@ -15,13 +15,19 @@ export function useSiteList(options = { autoFetch: true }) {
   const [error, setError] = useState<Error | null>(null);
   
   const fetchSites = async () => {
-    if (!tenantId) return;
-    
+    if (!tenantId){
+      const hostname = window.location.hostname;
+      const subdomain = hostname.split('.')[0];
+      var tenant=subdomain
+    }else{
+      var tenant=tenantId
+    }
+
     setIsLoading(true);
     try {
       // In a real app, this would be an API call
-      // const response = await api.get<KioskSite[]>(`/sites?tenantId=${tenantId}`);
-      
+      const response = await api.get(`/sites?tenantId=${tenant}`);
+      console.info(response)
       // Using mock data for now
       const mockSites: KioskSite[] = [
         {
@@ -84,7 +90,7 @@ export function useSiteList(options = { autoFetch: true }) {
         }
       ];
       
-      setSites(mockSites);
+      setSites(response.results);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err : new Error(String(err)));
@@ -94,13 +100,14 @@ export function useSiteList(options = { autoFetch: true }) {
   };
   
   useEffect(() => {
-    if (options.autoFetch && tenantId) {
+    if (options.autoFetch) {
       fetchSites();
     }
   }, [tenantId, options.autoFetch]);
 
-  const addSite=({site})=>{
+  const addSite=(site)=>{
     console.info("MRIKI ???")
+    console.info(site)
     setSites([...sites, site])
 
     api.post('/sites/', site);
@@ -116,17 +123,29 @@ export function useSiteList(options = { autoFetch: true }) {
       setSites(sites.map(site => site.id === updatedSite.id ? updatedSite : site)),
     deleteSite: (siteId: string) => 
       setSites(sites.filter(site => site.id !== siteId)),
-    togglePublish: (siteId: string, published: boolean) =>
-      setSites(sites.map(site => {
-        if (site.id === siteId) {
-          return {
-            ...site,
-            published,
-            lastPublished: published ? new Date().toISOString() : site.lastPublished
-          };
-        }
-        return site;
-      }))
+    togglePublish: async (siteId: string, published: boolean) => {
+      try {
+        // Use PATCH to update just the published field
+        const updatedSite = await api.patch(`/sites/${siteId}/`, { published });
+        
+        // Update local state with server response
+        setSites(sites.map(site => {
+          if (site.id === siteId) {
+            return {
+              ...site,
+              ...updatedSite, // Server will handle lastPublished automatically
+            };
+          }
+          return site;
+        }));
+        
+        return updatedSite;
+      } catch (error) {
+        console.error('Failed to toggle publish status:', error);
+        throw error;
+      }
+    }
+
   };
 }
 

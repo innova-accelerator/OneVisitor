@@ -103,6 +103,7 @@ export const KioskSiteModal = ({
           {/* Hosts Tab */}
           <TabsContent value="hosts">
             <HostManager
+              handleChange={handleChange}
               siteId={siteData.id}
               hosts={siteData.hosts || []}
             />
