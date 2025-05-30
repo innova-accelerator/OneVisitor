@@ -45,6 +45,8 @@ export const useSiteForm = (initialSite: KioskSite | null) => {
       ...prev,
       [field]: value
     }));
+
+    //ACTUAL API CALL SHOULD BE HERE
   };
 
   const handleBrandingChange = (field: string, value: any) => {
@@ -119,6 +121,7 @@ export const useSiteForm = (initialSite: KioskSite | null) => {
     setSecondaryColor,
     updateVisitorTypes,
     updateFormFields,
-    createSiteId
+    createSiteId,
+    defaultSite
   };
 };

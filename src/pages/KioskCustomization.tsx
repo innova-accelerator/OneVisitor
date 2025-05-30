@@ -44,7 +44,7 @@ const KioskCustomization = () => {
 
   const handleSaveSite = (site: KioskSite) => {
     if (editingSite) {
-      // Update existing site
+      
       updateSite(site);
       toast({
         title: "Site updated",

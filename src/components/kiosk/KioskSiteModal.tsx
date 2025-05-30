@@ -1,7 +1,7 @@
 
 // No TODOs found in this file
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { KioskSite } from "@/models/kiosk";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,9 @@ export const KioskSiteModal = ({
     handleUrlChange,
     updateVisitorTypes,
     updateFormFields,
-    createSiteId
+    createSiteId,
+    setSiteData,
+    defaultSite
   } = useSiteForm(site);
 
   const handleSave = () => {
@@ -46,6 +48,12 @@ export const KioskSiteModal = ({
     };
     onSave(newSite);
   };
+
+  useEffect(()=>{
+    if(isOpen&&!isEditing){
+      setSiteData(defaultSite)
+    }
+  },[isOpen])
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>

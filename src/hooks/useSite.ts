@@ -53,6 +53,8 @@ export function useSiteList(options = { autoFetch: true }) {
           ],
           visitorCount: 12
         },
+
+        
         {
           id: "warehouse",
           tenantId: tenantId,
@@ -96,13 +98,20 @@ export function useSiteList(options = { autoFetch: true }) {
       fetchSites();
     }
   }, [tenantId, options.autoFetch]);
+
+  const addSite=({site})=>{
+    console.info("MRIKI ???")
+    setSites([...sites, site])
+
+    api.post('/sites/', site);
+  }
   
   return {
     sites,
     isLoading,
     error,
     refetch: fetchSites,
-    addSite: (site: KioskSite) => setSites([...sites, site]),
+    addSite,
     updateSite: (updatedSite: KioskSite) => 
       setSites(sites.map(site => site.id === updatedSite.id ? updatedSite : site)),
     deleteSite: (siteId: string) => 
