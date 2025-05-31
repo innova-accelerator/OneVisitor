@@ -52,7 +52,6 @@ export const TenantProvider = ({ children }: TenantProviderProps) => {
     };
 
     const { id, shortname } = extractTenant();
-    console.info(id)
     setTenantId(id);
     setOrgShortname(shortname);
     setCurrentTenant(id);

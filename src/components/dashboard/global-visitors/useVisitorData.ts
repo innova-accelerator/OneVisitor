@@ -1,79 +1,109 @@
-import { useContext, useCallback, useMemo } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { SiteVisitor } from '@/models/kiosk';
 import { TenantContext } from '@/App';
+import { useApi } from '@/hooks/useApi';
 
 export function useVisitorData(siteId?: string) {
   const { tenantId } = useContext(TenantContext);
+  const api = useApi();
   
-  // Mock data - in a real app, this would come from an API
-  const sites = useMemo(() => [
-    { id: "main-office", name: "Main Office" },
-    { id: "warehouse", name: "Warehouse" },
-    { id: "branch-ny", name: "New York Branch" }
-  ], []);
-  
-  const allVisitors: SiteVisitor[] = useMemo(() => [
-    {
-      id: "v1",
-      siteId: "main-office",
-      name: "John Doe",
-      host: "Alice Smith",
-      visitorType: "visitor",
-      company: "ABC Corp",
-      checkInTime: "09:30 AM",
-      formResponses: {},
-      status: "active"
-    },
-    {
-      id: "v2",
-      siteId: "main-office",
-      name: "Jane Smith",
-      host: "Bob Johnson",
-      visitorType: "contractor",
-      company: "XYZ Contractors",
-      checkInTime: "10:15 AM",
-      formResponses: {},
-      status: "active"
-    },
-    {
-      id: "v3",
-      siteId: "warehouse",
-      name: "Michael Brown",
-      host: "Carol Williams",
-      visitorType: "delivery",
-      company: "FastShip Logistics",
-      checkInTime: "11:45 AM",
-      formResponses: {},
-      status: "active"
-    },
-    {
-      id: "v4",
-      siteId: "branch-ny",
-      name: "Emily Wilson",
-      host: "David Miller",
-      visitorType: "visitor",
-      company: "Global Enterprises",
-      checkInTime: "14:20 PM",
-      formResponses: {},
-      status: "checked-out"
-    }
-  ], []);
+  // State
+  const [sites, setSites] = useState([]);
+  const [visitors, setVisitors] = useState<SiteVisitor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<any>(null);
 
-  // Filter visitors by siteId if provided
-  const visitors = useMemo(() => {
-    return siteId ? allVisitors.filter(v => v.siteId === siteId) : allVisitors;
-  }, [allVisitors, siteId]);
-  
-  const allVisitorTypes = useMemo(() => ["visitor", "contractor", "delivery", "interview"], []);
-  
-  const getSiteName = useCallback((siteId: string) => {
-    const site = sites.find(site => site.id === siteId);
-    return site ? site.name : siteId;
-  }, [sites]);
-  
-  const handleExport = useCallback((data: SiteVisitor[]) => {
-    // Convert data to CSV format
-    const headers = ['Site', 'Visitor Name', 'Company', 'Type', 'Host', 'Check-In Time', 'Status'];
+  // Fetch data
+  const fetchData = async () => {
+    if (!tenantId) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Fetch sites
+      const sitesResponse = await api.get(`/sites/site?tenantId=${tenantId}`);
+      const sitesData = sitesResponse.results || [];
+      setSites(sitesData.map((site: any) => ({
+        id: site.id.toString(),
+        name: site.name
+      })));
+      
+      // Fetch visitors
+      const visitorsUrl = siteId 
+        ? `/sites/visitors?site=${siteId}&tenantId=${tenantId}`
+        : `/sites/visitors?tenantId=${tenantId}`;
+      
+      const visitorsResponse = await api.get(visitorsUrl);
+      const visitorsData = visitorsResponse.results || [];
+      setVisitors(visitorsData)
+      
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load data on mount and when dependencies change
+  useEffect(() => {
+    fetchData();
+  }, [tenantId, siteId]); // Remove api and fetchData from dependencies
+
+  // Helper functions
+  const formatCheckInTime = (checkInString: string) => {
+    try {
+      if (checkInString.includes('AM') || checkInString.includes('PM')) {
+        return checkInString;
+      }
+      const date = new Date(checkInString);
+      return date.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      });
+    } catch (error) {
+      return checkInString;
+    }
+  };
+
+  const getSiteName = (siteId: string) => {
+    const site = sites.find((site: any) => site.id === siteId);
+    return site ? site.name : `Site ${siteId}`;
+  };
+
+  // CRUD operations
+  const createVisitor = async (visitorData: any, photoFile?: File) => {
+    const formData = new FormData();
+    
+    Object.entries(visitorData).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, value as string);
+      }
+    });
+    
+    if (siteId) formData.append('site', siteId);
+    if (photoFile) formData.append('photo', photoFile);
+    formData.append('checkIn', new Date().toISOString());
+    
+    const newVisitor = await api.post('/sites/visitors/', formData);
+    await fetchData(); // Refresh data
+    return newVisitor;
+  };
+
+  const updateVisitor = async (visitorId: string, updates: any) => {
+    const updatedVisitor = await api.patch(`/sites/visitors/${visitorId}/`, updates);
+    await fetchData(); // Refresh data
+    return updatedVisitor;
+  };
+
+  const deleteVisitor = async (visitorId: string) => {
+    await api.delete(`/sites/visitors/${visitorId}/`);
+    await fetchData(); // Refresh data
+  };
+
+  const handleExport = (data: SiteVisitor[]) => {
+    const headers = ['Site', 'Visitor Name', 'Company', 'Type', 'Host', 'Check-In Time', 'Status', 'Email', 'Phone', 'Purpose'];
     const csvRows = [
       headers.join(','),
       ...data.map(visitor => [
@@ -81,13 +111,15 @@ export function useVisitorData(siteId?: string) {
         visitor.name,
         visitor.company || '',
         visitor.visitorType,
-        visitor.host,
-        visitor.checkInTime,
-        visitor.status
+        visitor.host_name,
+        visitor.checkIn,
+        visitor.status,
+        visitor?.email || '',
+        visitor?.phone || '',
+        visitor?.purpose || ''
       ].map(field => `"${field}"`).join(','))
     ].join('\n');
-
-    // Create and download the file
+    
     const blob = new Blob([csvRows], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -97,13 +129,24 @@ export function useVisitorData(siteId?: string) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  }, [getSiteName]);
-  
+  };
+
+  const allVisitorTypes = [...new Set(visitors.map(v => v.visitorType).filter(Boolean))];
+  if (allVisitorTypes.length === 0) {
+    allVisitorTypes.push("visitor", "contractor", "delivery", "interview");
+  }
+
   return {
-    sites: siteId ? sites.filter(s => s.id === siteId) : sites,
+    sites,
     visitors,
     allVisitorTypes,
+    loading,
+    error,
     getSiteName,
-    handleExport
+    handleExport,
+    createVisitor,
+    updateVisitor,
+    deleteVisitor,
+    refetchVisitors: fetchData
   };
 }

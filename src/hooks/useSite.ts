@@ -26,69 +26,8 @@ export function useSiteList(options = { autoFetch: true }) {
     setIsLoading(true);
     try {
       // In a real app, this would be an API call
-      const response = await api.get(`/sites?tenantId=${tenant}`);
+      const response = await api.get(`/sites/site?tenantId=${tenant}`);
       console.info(response)
-      // Using mock data for now
-      const mockSites: KioskSite[] = [
-        {
-          id: "main-office",
-          tenantId: tenantId,
-          name: "Main Office",
-          url: "main-office",
-          urlType: "path",
-          published: true,
-          branding: {
-            logo: "https://placehold.co/200x100?text=MainOffice",
-            primaryColor: "#2563eb",
-            secondaryColor: "#1e40af",
-            favicon: "https://placehold.co/32x32?text=MO"
-          },
-          welcomeMessage: "Welcome to our main office! Please check in.",
-          language: "en",
-          lastPublished: "2023-04-15T10:30:00Z",
-          visitorTypes: [
-            { id: "visitor", name: "Visitor", icon: "User" },
-            { id: "contractor", name: "Contractor", icon: "Briefcase" },
-            { id: "interview", name: "Interview", icon: "Clipboard" }
-          ],
-          formFields: [
-            { id: "name", label: "Full Name", type: "text", required: true },
-            { id: "email", label: "Email", type: "email", required: true },
-            { id: "company", label: "Company", type: "text", required: false },
-            { id: "host", label: "Host", type: "select", required: true }
-          ],
-          visitorCount: 12
-        },
-
-        
-        {
-          id: "warehouse",
-          tenantId: tenantId,
-          name: "Warehouse",
-          url: "warehouse-door",
-          urlType: "path",
-          published: false,
-          branding: {
-            logo: "https://placehold.co/200x100?text=Warehouse",
-            primaryColor: "#10b981",
-            secondaryColor: "#059669",
-            favicon: "https://placehold.co/32x32?text=WH"
-          },
-          welcomeMessage: "Welcome to our warehouse facility.",
-          language: "en",
-          lastPublished: null,
-          visitorTypes: [
-            { id: "delivery", name: "Delivery", icon: "Package" },
-            { id: "visitor", name: "Visitor", icon: "User" }
-          ],
-          formFields: [
-            { id: "name", label: "Full Name", type: "text", required: true },
-            { id: "company", label: "Company", type: "text", required: true },
-            { id: "purpose", label: "Purpose of Visit", type: "text", required: true }
-          ],
-          visitorCount: 5
-        }
-      ];
       
       setSites(response.results);
       setError(null);
@@ -105,12 +44,9 @@ export function useSiteList(options = { autoFetch: true }) {
     }
   }, [tenantId, options.autoFetch]);
 
-  const addSite=(site)=>{
-    console.info("MRIKI ???")
-    console.info(site)
-    setSites([...sites, site])
-
-    api.post('/sites/', site);
+  const addSite=async(site)=>{
+    const response=await api.post('/sites/site/', site);
+    setSites([...sites, response])
   }
   
   return {
@@ -119,14 +55,28 @@ export function useSiteList(options = { autoFetch: true }) {
     error,
     refetch: fetchSites,
     addSite,
-    updateSite: (updatedSite: KioskSite) => 
-      setSites(sites.map(site => site.id === updatedSite.id ? updatedSite : site)),
+    updateSite: async (updatedSite) => {
+      try {
+        // Use PATCH for partial updates
+        const response = await api.patch(`/sites/site/${updatedSite.id}/`, updatedSite);
+        
+        // Update local state with server response
+        setSites(sites.map(site => 
+          site.id === updatedSite.id ? { ...site, ...response } : site
+        ));
+        
+        return response;
+      } catch (error) {
+        console.error('Failed to update site:', error);
+        throw error;
+      }
+    },
     deleteSite: (siteId: string) => 
       setSites(sites.filter(site => site.id !== siteId)),
     togglePublish: async (siteId: string, published: boolean) => {
       try {
         // Use PATCH to update just the published field
-        const updatedSite = await api.patch(`/sites/${siteId}/`, { published });
+        const updatedSite = await api.patch(`/sites/site/${siteId}/`, { published });
         
         // Update local state with server response
         setSites(sites.map(site => {
@@ -160,44 +110,13 @@ export function useSiteDetails(siteId: string | undefined) {
   const [error, setError] = useState<Error | null>(null);
   
   const fetchSite = async () => {
-    if (!siteId || !tenantId) return;
-    
+
     setIsLoading(true);
     try {
       // In a real app, this would be an API call
-      // const response = await api.get<KioskSite>(`/sites/${siteId}?tenantId=${tenantId}`);
+      const response = await api.get(`/sites/site/search_by_url/?url=${siteId}`);
       
-      // Using mock data for now
-      const mockSite: KioskSite = {
-        id: siteId,
-        tenantId: tenantId,
-        name: siteId === "main-office" ? "Main Office" : "Warehouse",
-        url: siteId,
-        urlType: "path",
-        published: true,
-        branding: {
-          logo: `https://placehold.co/200x100?text=${siteId}`,
-          primaryColor: "#2563eb",
-          secondaryColor: "#1e40af",
-          favicon: `https://placehold.co/32x32?text=${siteId}`
-        },
-        welcomeMessage: `Welcome to our ${siteId} location! Please check in.`,
-        language: "en",
-        lastPublished: "2023-04-15T10:30:00Z",
-        visitorTypes: [
-          { id: "visitor", name: "Visitor", icon: "User" },
-          { id: "contractor", name: "Contractor", icon: "Briefcase" }
-        ],
-        formFields: [
-          { id: "name", label: "Full Name", type: "text", required: true },
-          { id: "email", label: "Email", type: "email", required: true },
-          { id: "company", label: "Company", type: "text", required: false },
-          { id: "host", label: "Host", type: "select", required: true }
-        ],
-        visitorCount: 10
-      };
-      
-      setSite(mockSite);
+      setSite(response);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err : new Error(String(err)));
@@ -205,18 +124,24 @@ export function useSiteDetails(siteId: string | undefined) {
       setIsLoading(false);
     }
   };
+
+  const submitVisitor=async(submissionData)=>{
+    const response = await api.post('/sites/visitors/', submissionData);
+    return response
+  }
   
   useEffect(() => {
-    if (siteId && tenantId) {
+    if (siteId) {
       fetchSite();
     }
-  }, [siteId, tenantId]);
+  }, [siteId]);
   
   return {
     site,
     isLoading,
     error,
     refetch: fetchSite,
+    submitVisitor,
     updateSite: (updatedSite: KioskSite) => setSite(updatedSite)
   };
 }

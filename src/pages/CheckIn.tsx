@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
@@ -13,16 +12,39 @@ import { ReviewConfirm } from "@/components/check-in/ReviewConfirm";
 import { ThankYouScreen } from "@/components/check-in/ThankYouScreen";
 import { ImageUploader } from "@/components/kiosk/ImageUploader";
 import { KioskSite } from "@/models/kiosk";
+import { useSiteDetails } from "@/hooks/useSite";
 
 interface CheckInProps {
-  siteConfig?: KioskSite;
   isPreview?: boolean;
 }
 
-const CheckIn = ({ siteConfig, isPreview = false }: CheckInProps) => {
+interface FormData {
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  host: string;
+  purpose: string;
+  expectedDuration: string;
+  signature: boolean;
+  photo: boolean;
+  visitorType: string;
+}
+
+interface VisitorType {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+}
+
+const CheckIn = ({ isPreview = false }: CheckInProps) => {
   const { sitePath } = useParams<{ sitePath?: string }>();
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [step, setStep] = useState<number>(1);
+  const { site, submitVisitor } = useSiteDetails(sitePath);
+  const [badgeID, setBadgeID]=useState(null)
+  
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     company: "",
     email: "",
@@ -34,20 +56,36 @@ const CheckIn = ({ siteConfig, isPreview = false }: CheckInProps) => {
     photo: false,
     visitorType: ""
   });
+  
   const [photo, setPhoto] = useState<File | null>(null);
+  const [currentBranding, setCurrentBranding] = useState<any>(null);
+  const [visitorTypes, setVisitorTypes] = useState<VisitorType[]>([]);
   const { toast } = useToast();
   const { tenantBranding } = useTenantBranding(sitePath);
 
-  // Use siteConfig if in preview mode, otherwise use tenantBranding
-  const currentBranding = isPreview && siteConfig ? {
-    name: siteConfig.name,
-    logo: siteConfig.branding.logo,
-    primaryColor: siteConfig.branding.primaryColor,
-    secondaryColor: siteConfig.branding.secondaryColor,
-    font: undefined
-  } : tenantBranding;
+  // Update branding and visitor types when site or tenantBranding changes
+  useEffect(() => {
+    if (site) {
+      setCurrentBranding({
+        name: site.name,
+        logo: site.branding.logo,
+        primaryColor: site.branding.primaryColor,
+        secondaryColor: site.branding.secondaryColor,
+        font: undefined
+      });
+      
+      setVisitorTypes(site.visitorTypes?.map(vt => ({
+        id: vt.id,
+        name: vt.name,
+        icon: vt.icon || "User",
+        color: site.branding.primaryColor || "#3498db"
+      })) || []);
+    } else if (tenantBranding) {
+      setCurrentBranding(tenantBranding);
+    }
+  }, [site]);
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof FormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -72,31 +110,61 @@ const CheckIn = ({ siteConfig, isPreview = false }: CheckInProps) => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isPreview) {
-      // Create FormData for submission
-      const submissionData = new FormData();
-      for (const key in formData) {
-        submissionData.append(key, String(formData[key as keyof typeof formData]));
-      }
-      
-      // Add photo if present
-      if (photo) {
-        submissionData.append('photo', photo);
-      }
+      try {
+        // Create FormData for submission
+        const submissionData = new FormData();
+        
+        // Add form data
+        Object.entries(formData).forEach(([key, value]) => {
+          submissionData.append(key, String(value));
+        });
+        
+        // Add photo if present
+        if (photo) {
+          submissionData.append('photo', photo);
+        }
+        
+        // Make API call if sitePath exists
+        if (sitePath) {
+          // TODO: Replace with actual API call
+          console.log('Would submit to:', `/api/sites/site/${sitePath}/visitors`);
+          console.log('Form data:', Object.fromEntries(submissionData.entries()));
+          
+          // Example API call:
+          // const response = await fetch(`/api/sites/${sitePath}/visitors`, {
+          //   method: 'POST',
+          //   body: submissionData,
+          // });
+          // 
+          // if (!response.ok) {
+          //   throw new Error('Failed to submit check-in');
+          // }
+          var badgeIDS=`VIS-${Math.floor(Math.random() * 10000)}`
 
-      // TODO: switch to multipart/form-data in backend
-      // Make API call with FormData
-      if (sitePath) {
-        // This is a placeholder for the actual API call
-        console.log('Would submit to:', `/api/sites/${sitePath}/visitors`);
-        console.log('Form data:', Object.fromEntries(submissionData.entries()));
+          const dateNow=new Date()
+          submissionData.append('site', site.id);
+          submissionData.append('badgeID', badgeIDS);
+          submissionData.append('checkIn', dateNow.toISOString());
+          setBadgeID(badgeIDS)
+          const response=await submitVisitor(submissionData)
+          console.info(response)
+        }
+        
+        toast({
+          title: "Check-in Complete!",
+          description: "Welcome badge has been printed. Please wait for host notification.",
+        });
+      } catch (error) {
+        console.error('Check-in submission error:', error);
+        toast({
+          title: "Check-in Failed",
+          description: "Please try again or contact support.",
+          variant: "destructive",
+        });
+        return; // Don't proceed to step 4 if submission failed
       }
-      
-      toast({
-        title: "Check-in Complete!",
-        description: "Welcome badge has been printed. Please wait for host notification.",
-      });
     }
     setStep(4);
   };
@@ -118,19 +186,7 @@ const CheckIn = ({ siteConfig, isPreview = false }: CheckInProps) => {
     setStep(1);
   };
 
-  // Use visitor types from siteConfig if in preview mode, otherwise use mock data
-  const visitorTypes = isPreview && siteConfig ? 
-    siteConfig.visitorTypes.map(vt => ({
-      id: vt.id,
-      name: vt.name,
-      icon: vt.icon || "User",
-      color: currentBranding?.primaryColor || "#3498db"
-    })) : [
-      { id: "visitor", name: "Visitor", icon: "User", color: currentBranding?.primaryColor || "#3498db" },
-      { id: "contractor", name: "Contractor", icon: "Briefcase", color: currentBranding?.primaryColor || "#e74c3c" },
-      { id: "delivery", name: "Delivery", icon: "Package", color: currentBranding?.primaryColor || "#27ae60" },
-      { id: "interview", name: "Interview", icon: "Calendar", color: currentBranding?.primaryColor || "#f39c12" }
-    ];
+
 
   const renderCurrentStep = () => {
     switch(step) {
@@ -138,7 +194,7 @@ const CheckIn = ({ siteConfig, isPreview = false }: CheckInProps) => {
         return (
           <VisitorTypeSelection 
             visitorTypes={visitorTypes} 
-            onSelect={(type) => {
+            onSelect={(type: string) => {
               handleInputChange("visitorType", type);
               handleNextStep();
             }} 
@@ -149,7 +205,8 @@ const CheckIn = ({ siteConfig, isPreview = false }: CheckInProps) => {
           <>
             <VisitorForm 
               formData={formData} 
-              onInputChange={handleInputChange} 
+              onInputChange={handleInputChange}
+              site={site}
             />
             {!isPreview && (
               <div className="mt-6">
@@ -175,11 +232,28 @@ const CheckIn = ({ siteConfig, isPreview = false }: CheckInProps) => {
             onDone={resetForm}
             tenantBranding={currentBranding}
             photo={photo}
+            badgeID={badgeID}
           />
         );
       default:
         return null;
     }
+  };
+
+  // Validate required fields for step 2 based on site.formFields
+  const isStep2Valid = () => {
+    if (!site?.formFields) {
+      // Default validation if no site formFields
+      return formData.name.trim() && formData.email.trim() && formData.host.trim();
+    }
+    
+    // Check all required fields from site.formFields
+    return site.formFields
+      .filter(field => field.required)
+      .every(field => {
+        const value = formData[field.id];
+        return value && String(value).trim();
+      });
   };
 
   // Create gradient background using site colors
@@ -196,7 +270,7 @@ const CheckIn = ({ siteConfig, isPreview = false }: CheckInProps) => {
       <Card className="w-full max-w-md border-0 shadow-lg">
         <CardContent className="p-8">
           {/* Logo & Header */}
-          <CheckInHeader tenantBranding={currentBranding} />
+          <CheckInHeader site={site} />
           
           {/* Progress and Content */}
           <CheckInProgress 
@@ -204,7 +278,7 @@ const CheckIn = ({ siteConfig, isPreview = false }: CheckInProps) => {
             tenantBranding={currentBranding}
             onPrevious={handlePreviousStep}
             onNext={step < 3 ? handleNextStep : handleSubmit}
-            isNextDisabled={step === 2 && (!formData.name || !formData.email || !formData.host)}
+            isNextDisabled={step === 2 && !isStep2Valid()}
             showNavigation={step > 1 && step < 4}
             nextButtonText={step < 3 ? "Next" : "Complete Check-in"}
           >

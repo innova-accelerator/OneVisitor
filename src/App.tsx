@@ -1,9 +1,8 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/admin/Admin";
@@ -11,6 +10,14 @@ import CheckIn from "./pages/CheckIn";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import { TenantBranding } from "@/models/tenant";
+
+// Helper function to extract subdomain from hostname
+const getSubdomain = (): string | null => {
+  const hostname = window.location.hostname;
+  
+  const parts = hostname.split('.');
+    return parts[0];
+};
 
 // Define default branding
 const defaultBranding: TenantBranding = {
@@ -39,17 +46,45 @@ export const TenantContext = React.createContext<{
 });
 
 const App = () => {
-  // Tenant state management
-  const [tenantId, setTenantId] = useState<string | null>("acme-corp");
-  const [orgShortname, setOrgShortname] = useState<string | null>("acme-corp");
-  const [currentTenant, setCurrentTenant] = useState<string | null>("acme-corp");
-  const [tenantBranding, setTenantBranding] = useState<TenantBranding | null>({
-    name: "Acme Corporation",
-    logo: "https://placehold.co/100x50?text=ACME",
-    primaryColor: "#2563eb",
-    secondaryColor: "#1e40af",
-    font: "Inter, sans-serif"
-  });
+  // Extract tenantId from subdomain immediately
+  const extractedTenantId = getSubdomain();
+  
+  // Tenant state management - initialize with extracted tenantId
+  const [tenantId, setTenantId] = useState<string | null>(extractedTenantId);
+  const [orgShortname, setOrgShortname] = useState<string | null>(extractedTenantId);
+  const [currentTenant, setCurrentTenant] = useState<string | null>(extractedTenantId);
+  const [tenantBranding, setTenantBranding] = useState<TenantBranding | null>(
+    extractedTenantId === 'acme-corp' ? {
+      name: "Acme Corporation",
+      logo: "https://placehold.co/100x50?text=ACME",
+      primaryColor: "#2563eb",
+      secondaryColor: "#1e40af",
+      font: "Inter, sans-serif"
+    } : defaultBranding
+  );
+
+  // Update tenant info if subdomain changes (for SPA navigation)
+  useEffect(() => {
+    const currentSubdomain = getSubdomain();
+    if (currentSubdomain !== tenantId) {
+      setTenantId(currentSubdomain);
+      setOrgShortname(currentSubdomain);
+      setCurrentTenant(currentSubdomain);
+      
+      // Update branding based on new tenant
+      if (currentSubdomain === 'acme-corp') {
+        setTenantBranding({
+          name: "Acme Corporation",
+          logo: "https://placehold.co/100x50?text=ACME",
+          primaryColor: "#2563eb",
+          secondaryColor: "#1e40af",
+          font: "Inter, sans-serif"
+        });
+      } else {
+        setTenantBranding(defaultBranding);
+      }
+    }
+  }, [tenantId]);
 
   return (
     <TenantContext.Provider value={{ 
@@ -70,6 +105,7 @@ const App = () => {
             <Route path="/dashboard/*" element={<Dashboard />} />
             <Route path="/checkin/:sitePath?" element={<CheckIn />} />
             <Route path="/admin/*" element={<Admin />} />
+            <Route path="/:sitePath?" element={<CheckIn />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

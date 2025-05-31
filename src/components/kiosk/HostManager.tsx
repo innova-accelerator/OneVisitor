@@ -19,7 +19,7 @@ interface HostManagerProps {
 export const HostManager = ({
   siteId,
   handleChange,
-  hosts: initialHosts
+  initialHosts
 }: HostManagerProps) => {
   const [hosts, setHosts] = useState<Host[]>(initialHosts);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -47,6 +47,13 @@ export const HostManager = ({
     setIsDialogOpen(false);
     setCurrentHost(null);
   };
+
+  useEffect(()=>{
+    console.info(initialHosts)
+    if(siteId){
+      setHosts(initialHosts)
+    }
+  },[siteId])
 
   const handleSaveHost = () => {
     if (!currentHost || !currentHost.name || !currentHost.email) return;

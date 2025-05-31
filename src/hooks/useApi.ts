@@ -46,23 +46,36 @@ export function useApi(options: ApiOptions = {}) {
   };
   
   /**
-   * Add timezone offset to data if it's a site-related POST/PUT request
+   * Add timezone offset to data for POST/PUT requests
    */
-  function addTimezoneIfNeeded(endpoint: string, method: string, data: any): any {
-    if (!autoTimezone || !data || typeof data !== 'object') {
+  function addTimezoneIfNeeded(method: string, data: any): any {
+    if (!autoTimezone) {
       return data;
     }
     
-    // Check if this is a site-related request and method is POST or PUT
-    const isSiteRequest = method === 'POST' || method === 'PUT'
-    
-    if (isSiteRequest) {
-      // Only add timezoneOffset if it's not already provided
-      if (!data.hasOwnProperty('timezoneOffset')) {
-        return {
-          ...data,
-          timezoneOffset: getTimezoneOffset()
-        };
+    // Add timezone to ALL POST and PUT requests
+    if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+      // Handle FormData
+      if (data instanceof FormData) {
+        if (!data.has('timezoneOffset')) {
+          console.log('✅ Adding timezone to FormData:', getTimezoneOffset());
+          data.append('timezoneOffset', getTimezoneOffset());
+        }
+        return data;
+      }
+      
+      // Handle regular objects
+      if (data && typeof data === 'object') {
+        // Only add timezoneOffset if it's not already provided
+        if (!data.hasOwnProperty('timezoneOffset')) {
+          console.log('✅ Adding timezone to request:', getTimezoneOffset());
+          return {
+            ...data,
+            timezoneOffset: getTimezoneOffset()
+          };
+        } else {
+          console.log('⚠️ Timezone already exists:', data.timezoneOffset);
+        }
       }
     }
     
@@ -95,18 +108,25 @@ export function useApi(options: ApiOptions = {}) {
     }
     
     // Add timezone offset if needed
-    const processedBody = addTimezoneIfNeeded(endpoint, method, body);
+    const processedBody = addTimezoneIfNeeded(method, body);
     
     try {
       console.log(`[API Request] ${method} ${url}`, {
         headers: { ...defaultHeaders, ...headers },
-        body: processedBody
+        body: processedBody instanceof FormData ? 'FormData' : processedBody
       });
+      
+      const requestHeaders = { ...defaultHeaders, ...headers };
+      
+      // Remove Content-Type header for FormData (let browser set it with boundary)
+      if (processedBody instanceof FormData) {
+        delete requestHeaders['Content-Type'];
+      }
       
       const response = await fetch(url, {
         method,
-        headers: { ...defaultHeaders, ...headers },
-        body: processedBody ? JSON.stringify(processedBody) : undefined,
+        headers: requestHeaders,
+        body: processedBody instanceof FormData ? processedBody : (processedBody ? JSON.stringify(processedBody) : undefined),
         credentials: options.withCredentials ? 'include' : 'same-origin',
         ...rest,
       });
@@ -128,7 +148,7 @@ export function useApi(options: ApiOptions = {}) {
           statusText: response.statusText,
           headers: Object.fromEntries(response.headers.entries()),
           errorData,
-          requestBody: processedBody
+          requestBody: processedBody instanceof FormData ? 'FormData' : processedBody
         });
         
         throw error;
@@ -159,7 +179,7 @@ export function useApi(options: ApiOptions = {}) {
       console.error(`[API Request Failed] ${method} ${url}`, {
         error,
         message: errorMessage,
-        requestBody: processedBody,
+        requestBody: processedBody instanceof FormData ? 'FormData' : processedBody,
         headers: { ...defaultHeaders, ...headers },
         timestamp: new Date().toISOString()
       });

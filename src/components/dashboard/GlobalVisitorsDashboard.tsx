@@ -24,9 +24,9 @@ export const GlobalVisitorsDashboard = ({ siteId }: GlobalVisitorsDashboardProps
     const matchesSearch = 
       searchQuery === "" || 
       visitor.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      visitor.host.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      visitor.host_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (visitor.company && visitor.company.toLowerCase().includes(searchQuery.toLowerCase()));
-    
+
     const matchesSites = siteId 
       ? visitor.siteId === siteId 
       : (selectedSites.length === 0 || selectedSites.includes(visitor.siteId));
@@ -43,7 +43,7 @@ export const GlobalVisitorsDashboard = ({ siteId }: GlobalVisitorsDashboardProps
 
   return (
     <div>
-      {siteId && <StatsCards siteId={siteId} />}
+      {siteId && <StatsCards sites={sites} visitors={visitors} />}
       
       <DashboardMetricsCards 
         visitors={visitors} 

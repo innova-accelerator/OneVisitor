@@ -40,6 +40,8 @@ const BrandingSettings = () => {
 
   const handleBrandingUpdate = () => {
     if (setTenantBranding) {
+
+      
       setTenantBranding(brandingSettings);
     }
   };

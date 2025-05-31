@@ -1,6 +1,4 @@
-
 // No TODOs found in this file
-
 import { useState, useEffect } from "react";
 import { KioskSite } from "@/models/kiosk";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -27,6 +25,7 @@ export const KioskSiteModal = ({
 }: KioskSiteModalProps) => {
   const isEditing = !!site;
   const [activeTab, setActiveTab] = useState("branding");
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const {
     siteData,
@@ -40,7 +39,45 @@ export const KioskSiteModal = ({
     defaultSite
   } = useSiteForm(site);
 
+  const validateSiteData = (): boolean => {
+    // Check if site name is provided
+    if (!siteData.name || siteData.name.trim() === "") {
+      setValidationError("Site name is required.");
+      setActiveTab("branding");
+      return false;
+    }
+
+    // Check if URL path is provided
+    if (!siteData.url || siteData.url.trim() === "") {
+      setValidationError("URL path is required.");
+      setActiveTab("branding");
+      return false;
+    }
+
+    // Check if any form field has id "host"
+    const hasHostField = siteData.formFields.some(field => field.id === "host");
+    
+    if (hasHostField) {
+      // If host field exists, hosts array must exist and have at least one item
+      const hasHosts = siteData.host && siteData.host.length > 0;
+      
+      if (!hasHosts) {
+        setValidationError("At least one host must be configured when the host field is included in the form.");
+        setActiveTab("hosts");
+        return false;
+      }
+    }
+    
+    setValidationError(null);
+    return true;
+  };
+
   const handleSave = () => {
+    // Validate all required fields before saving
+    if (!validateSiteData()) {
+      return;
+    }
+
     // Generate ID from name if new site
     const newSite = {
       ...siteData,
@@ -49,11 +86,28 @@ export const KioskSiteModal = ({
     onSave(newSite);
   };
 
-  useEffect(()=>{
-    if(isOpen&&!isEditing){
-      setSiteData(defaultSite)
+  console.info(siteData);
+
+  useEffect(() => {
+    if (isOpen && !isEditing) {
+      setSiteData(defaultSite);
+      setValidationError(null);
     }
-  },[isOpen])
+  }, [isOpen]);
+
+  // Clear validation error when switching tabs or when data is updated
+  useEffect(() => {
+    if (validationError) {
+      // Clear error if the user has fixed the validation issue
+      if (validationError.includes("Site name") && siteData.name?.trim()) {
+        setValidationError(null);
+      } else if (validationError.includes("URL path") && siteData.urlPath?.trim()) {
+        setValidationError(null);
+      } else if (validationError.includes("host") && activeTab !== "hosts") {
+        setValidationError(null);
+      }
+    }
+  }, [activeTab, siteData.name, siteData.urlPath, siteData.host]);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -64,6 +118,12 @@ export const KioskSiteModal = ({
             Configure how visitors will check in at this location.
           </DialogDescription>
         </DialogHeader>
+        
+        {validationError && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            {validationError}
+          </div>
+        )}
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
           <TabsList className="grid grid-cols-4 mb-4">
@@ -105,11 +165,11 @@ export const KioskSiteModal = ({
             <HostManager
               handleChange={handleChange}
               siteId={siteData.id}
-              hosts={siteData.hosts || []}
+              initialHosts={siteData.host || []}
             />
           </TabsContent>
         </Tabs>
-
+        
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             Cancel

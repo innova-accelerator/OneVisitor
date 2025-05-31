@@ -3,9 +3,11 @@ import { useState, useEffect } from "react";
 import { KioskSite } from "@/models/kiosk";
 
 export const useSiteForm = (initialSite: KioskSite | null) => {
+  const hostname = window.location.hostname;
+  const tenant = hostname.split('.')[0];
   const defaultSite: KioskSite = {
     id: "",
-    tenantId: "tenant1",
+    tenantId: tenant,
     name: "",
     url: "",
     urlType: "path",

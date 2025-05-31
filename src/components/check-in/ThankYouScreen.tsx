@@ -26,7 +26,7 @@ interface ThankYouScreenProps {
   photo?: File | null;
 }
 
-export const ThankYouScreen = ({ formData, onUnlock, onDone, tenantBranding, photo }: ThankYouScreenProps) => {
+export const ThankYouScreen = ({ formData, onUnlock, onDone, tenantBranding, photo, badgeID }: ThankYouScreenProps) => {
   return (
     <div className="space-y-8 text-center">
       <div className="flex justify-center">
@@ -60,7 +60,7 @@ export const ThankYouScreen = ({ formData, onUnlock, onDone, tenantBranding, pho
             <p className="text-sm"><strong>Host:</strong> {formData.host}</p>
             <p className="text-sm"><strong>Check-in Time:</strong> {new Date().toLocaleTimeString()}</p>
             <div className="flex justify-between items-center mt-3 pt-3 border-t border-green-200">
-              <span className="text-xs text-green-700">Badge ID: VIS-{Math.floor(Math.random() * 10000)}</span>
+              <span className="text-xs text-green-700">Badge ID: {badgeID}</span>
               <Badge variant="secondary" className="bg-green-700 text-white">
                 <Clock className="h-3 w-3 mr-1" />
                 {formData.expectedDuration || "1 hour"}

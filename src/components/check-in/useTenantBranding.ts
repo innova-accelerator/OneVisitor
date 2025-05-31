@@ -44,11 +44,10 @@ const demoTenants: Record<string, DemoTenant> = {
 
 export const useTenantBranding = (sitePath?: string) => {
   const { setCurrentTenant, setTenantBranding, tenantBranding } = useContext(TenantContext);
-  
   useEffect(() => {
     // Extract tenant ID from site path or use default
     const currentTenantId = sitePath?.split('-')[0] || 'acme-corp';
-    
+    console.info(currentTenantId)
     if (currentTenantId && demoTenants[currentTenantId]) {
       setCurrentTenant(currentTenantId);
       setTenantBranding(demoTenants[currentTenantId]);
